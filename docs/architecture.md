@@ -8,7 +8,7 @@
 - C# 14 与 .NET 10 LTS。
 - WPF 主界面，按需使用 Windows App SDK 与 Win32 能力。
 - SQLite 保存规则、索引元数据和操作历史。
-- 当前采用未签名的自包含单文件 ZIP 与当前用户 PowerShell 安装器，仅供本机使用；发行门禁验证 SHA256、结构和安装生命周期，不读取证书存储。
+- 当前采用未签名的 Inno Setup 单文件安装程序，内含 win-x64 自包含应用；发行门禁验证 SHA256、未签名状态、安装、升级、应用启动和卸载生命周期。
 
 选择 WPF 的原因不是界面更先进，而是此产品高度依赖文件系统、托盘、快捷键和 Windows Shell，成熟度与可调试性比跨平台更重要。界面与系统集成应通过模块接口隔离，未来迁移 UI 不应重写整理规则和操作日志。
 
@@ -157,9 +157,9 @@ TryAcquire(activationRequested) -> bool
 
 ### 发行生命周期
 
-发行脚本按照 [.NET 官方单文件部署模型](https://learn.microsoft.com/dotnet/core/deploying/single-file/overview)生成指定 Windows RID 的自包含单文件程序，并将原生库设置为随包提取，最终输出 ZIP 与 SHA256。安装器只写当前用户目录和 HKCU，使用同卷暂存目录与备份目录完成原位替换；升级失败时恢复旧安装。设置和 SQLite 操作历史位于独立的 `%LOCALAPPDATA%\DesktopManager`，升级与默认卸载不会修改它们。
+发行脚本按照 [.NET 官方单文件部署模型](https://learn.microsoft.com/dotnet/core/deploying/single-file/overview)生成 win-x64 自包含单文件程序，再由 Inno Setup 6 编译为单个 Setup EXE 与 SHA256。安装器以稳定 AppId 管理原位升级，只写当前用户的 `%LOCALAPPDATA%\Programs\DesktopManager`、开始菜单与 HKCU 卸载登记，不要求管理员权限。设置和 SQLite 操作历史位于独立的 `%LOCALAPPDATA%\DesktopManager`，升级与默认卸载不会修改它们。
 
-卸载器拒绝删除正在运行的应用，清理当前用户开机启动项、开始菜单快捷方式和卸载登记。递归移动与删除前会验证绝对目标、拒绝根目录和重解析点；只有显式 `-RemoveUserData` 才删除用户设置。`Uninstall.cmd` 异步启动已加载的 PowerShell 卸载器，使批处理先退出，避免安装目录删除自身后 `cmd.exe` 再次读取批处理失败。自动验收在临时目录并关闭 Shell 集成，覆盖安装、升级、默认保留设置、卸载、ZIP 结构和哈希。Windows Sandbox 额外使用只读工作区与独立可写结果目录，临时信任不含私钥的公开证书后强制验签，并通过真实 `Install.cmd` 和 `Uninstall.cmd` 验证安装、WPF 启动、正常退出、异步卸载完成及无安装目录残留。
+Inno Setup 卸载器通过 Restart Manager 处理运行中的应用，并清理当前用户开机启动项、开始菜单/桌面快捷方式和卸载登记；用户设置不进入 `[UninstallDelete]`。安装时会定向清理旧 ZIP 安装留下的 `Install.cmd`、PowerShell 脚本和发行清单。自动验收在独立临时目录覆盖安装、同版本原位升级、WPF 桌面组件启动、默认保留设置、卸载、SHA256 与未签名状态。
 
 设置页通过 Windows 目录选择器收集监控目录和托管目录，并复用 `FileOrganizer` 的根目录不变量进行校验。业务设置采用单一 JSON 存储，保存位置为本机 `%LOCALAPPDATA%\DesktopManager\settings.json`；旧版本的授权字段会被反序列化器忽略。开机启动以 Windows 当前用户启动项为唯一事实来源，避免双重状态。
 

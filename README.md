@@ -10,7 +10,7 @@
 - [领域词汇表](./CONTEXT.md)
 - [架构设计](./docs/architecture.md)
 - [开发路线图](./docs/roadmap.md)
-- [1.11.3 验收报告](./docs/acceptance-report.md)
+- [1.11.4 验收报告](./docs/acceptance-report.md)
 - [技术选型决策](./docs/adr/0001-windows-local-first-native-stack.md)
 - [低保真原型说明](./docs/prototype-notes.md)
 
@@ -88,25 +88,25 @@
 .\scripts\test.ps1
 ```
 
-## 构建与验证 Windows 发行包
+## 构建与验证 Windows 安装器
 
-生成 `win-x64` 自包含单文件 ZIP：
-
-```powershell
-.\scripts\publish-release.ps1 -Version 1.11.3 -RuntimeIdentifier win-x64
-```
-
-脚本依据 [.NET 单文件部署说明](https://learn.microsoft.com/dotnet/core/deploying/single-file/overview)启用 `PublishSingleFile` 和 `IncludeNativeLibrariesForSelfExtract`，因此目标电脑不需要预装 .NET。输出位于 `artifacts/release`，同时生成 `.sha256` 校验文件。
-
-验证发行包的哈希、结构、隔离安装和卸载：
+生成 `win-x64` 自包含单文件安装程序：
 
 ```powershell
-.\scripts\verify-release-package.ps1 `
-  -ArchivePath .\artifacts\release\DesktopManager-1.11.3-win-x64.zip `
-  -PreviousArchivePath .\artifacts\release\DesktopManager-1.11.2-win-x64.zip
+.\scripts\publish-installer.ps1 -Version 1.11.4 -RuntimeIdentifier win-x64
 ```
 
-当前发行包为 `1.11.3 win-x64`，最低目标为 Windows 10 1809。本版加入统一品牌图标，可执行文件、安装快捷方式和托盘均使用同一图标。用户解压 ZIP 后双击 `Install.cmd` 即可安装到当前用户目录。项目仅供本机使用，后续版本固定生成未签名包，不执行 Authenticode 或时间戳验证；`release.json` 会标记 `signed=false`，发行验证会检查这一约束。Windows 可能显示“未知发布者”或 SmartScreen 提示。Windows Sandbox 仍会验证 SHA256、`Install.cmd`、四类桌面组件 UI 启动、退出和 `Uninstall.cmd` 全流程。批处理会显式传递自身目录；PowerShell 安装与卸载脚本还会使用脚本路径和 Windows Known Folder API 回退，不依赖启动宿主是否提供 `LOCALAPPDATA` 或参数默认值。
+脚本依据 [.NET 单文件部署说明](https://learn.microsoft.com/dotnet/core/deploying/single-file/overview)生成自包含应用，再由 Inno Setup 6 编译为标准 Windows 安装向导，因此目标电脑不需要预装 .NET。输出位于 `artifacts/release`，同时生成同名 `.sha256` 校验文件。
+
+验证安装器的哈希、未签名状态、隔离安装、原位升级、应用启动和卸载：
+
+```powershell
+.\scripts\verify-installer-package.ps1 `
+  -InstallerPath .\artifacts\release\DesktopManager-Setup-1.11.4-win-x64.exe `
+  -ExpectedVersion 1.11.4
+```
+
+当前发行版为 `1.11.4 win-x64`，最低目标为 Windows 10 1809。用户直接运行 `DesktopManager-Setup-1.11.4-win-x64.exe`，通过标准安装向导安装到当前用户目录，无需解压或管理员权限；开始菜单、可选桌面快捷方式、升级覆盖和 Windows 卸载入口由安装器统一管理。设置与操作历史位于独立的 `%LOCALAPPDATA%\DesktopManager`，升级和默认卸载都会保留。发行版固定保持未签名，不执行 Authenticode 或时间戳验证，Windows 可能显示“未知发布者”或 SmartScreen 提示。
 
 ## 已确定的产品原则
 

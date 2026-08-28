@@ -1,12 +1,12 @@
-桌面管理 · Windows 发行包
+桌面管理 · Windows 安装程序
 
 安装
-1. 解压整个 ZIP，不能只单独运行其中一个文件。
-2. 双击 Install.cmd。
-3. 默认安装到当前用户的 LocalAppData\Programs\DesktopManager，不需要管理员权限。
+1. 双击 DesktopManager-Setup-版本-win-x64.exe。
+2. 按安装向导完成安装，无需解压，也不需要管理员权限。
+3. 默认安装到当前用户的 LocalAppData\Programs\DesktopManager。
 
 升级
-下载并解压新版本，再次双击 Install.cmd。安装器会原位替换程序文件；
+下载新版本 Setup EXE 并再次运行。安装器会原位升级程序文件；
 %LOCALAPPDATA%\DesktopManager 中的设置和操作历史不会被修改。
 
 桌面收纳窗口
@@ -24,6 +24,6 @@
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\uninstall.ps1 -RemoveUserData
 
 安全说明
-- 卸载会清理“桌面管理”的当前用户开机启动项和开始菜单快捷方式。
-- 本软件仅供本机使用，发行包不进行代码签名或时间戳验证；Windows 可能显示“未知发布者”或 SmartScreen 提示。
-- 校验 ZIP 完整性时，请与同名 .sha256 文件中的 SHA256 值比较。
+- 卸载会清理“桌面管理”的当前用户开机启动项、开始菜单/桌面快捷方式和卸载登记。
+- 安装程序不进行代码签名或时间戳验证；Windows 可能显示“未知发布者”或 SmartScreen 提示。
+- 校验安装程序完整性时，请与同名 .sha256 文件中的 SHA256 值比较。

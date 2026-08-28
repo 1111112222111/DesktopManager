@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PROTOTYPE — 收纳窗口外观方向</title>
+  <style>
+    /* PROTOTYPE — Five views of collection-window appearance, switchable via ?variant=. */
+    :root {
+      color-scheme: dark;
+      --ink: #f5f7f6;
+      --muted: #aeb7b3;
+      --champagne: #c2a674;
+      --ui: "Segoe UI Variable", "Microsoft YaHei UI", sans-serif;
+      --display: Bahnschrift, "Segoe UI Variable Display", "Microsoft YaHei UI", sans-serif;
+      --mono: "Cascadia Mono", Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; min-height: 100%; margin: 0; }
+    body { font-family: var(--ui); background: #111514; color: var(--ink); overflow-x: hidden; }
+    button { font: inherit; }
+    button:focus-visible { outline: 2px solid #e0bd7c; outline-offset: 3px; }
+    .prototype-note {
+      position: fixed; z-index: 40; top: 18px; left: 22px; display: flex; align-items: center; gap: 12px;
+      padding: 9px 12px; border: 1px solid rgba(255,255,255,.16); border-radius: 999px;
+      background: rgba(15,19,18,.78); backdrop-filter: blur(18px); box-shadow: 0 8px 30px rgba(0,0,0,.18);
+      color: #dce2df; font-size: 12px; letter-spacing: .02em;
+    }
+    .prototype-note b { color: #fff; font-size: 11px; letter-spacing: .12em; }
+    .wallpaper-toggle {
+      position: fixed; z-index: 40; top: 18px; right: 22px; height: 38px; padding: 0 15px;
+      border: 1px solid rgba(255,255,255,.16); border-radius: 999px; color: #f6f8f7;
+      background: rgba(15,19,18,.78); backdrop-filter: blur(18px); cursor: pointer;
+    }
+    .stage {
+      position: relative; min-height: 100vh; display: grid; place-items: center; padding: 82px 44px 108px;
+      isolation: isolate; overflow: hidden;
+      background:
+        radial-gradient(circle at 77% 28%, rgba(211,173,119,.28) 0 4%, transparent 19%),
+        linear-gradient(152deg, transparent 0 35%, rgba(103,126,118,.27) 36% 48%, transparent 49%),
+        linear-gradient(138deg, transparent 0 46%, rgba(34,50,45,.82) 47% 62%, transparent 63%),
+        linear-gradient(135deg, #70867f 0%, #334841 45%, #15201d 100%);
+    }
+    body.light-wallpaper .stage {
+      background:
+        radial-gradient(circle at 76% 25%, rgba(255,229,181,.9) 0 4%, transparent 20%),
+        linear-gradient(151deg, transparent 0 36%, rgba(139,163,155,.38) 37% 50%, transparent 51%),
+        linear-gradient(138deg, transparent 0 46%, rgba(65,89,80,.48) 47% 62%, transparent 63%),
+        linear-gradient(135deg, #dbe5e0 0%, #a8beb5 49%, #6d8980 100%);
+    }
+    .stage::after {
+      content: ""; position: absolute; inset: 0; z-index: -1; opacity: .24; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+      mix-blend-mode: soft-light;
+    }
+    .view { display: none; width: min(1180px, 100%); }
+    .view.active { display: block; animation: reveal .22s ease-out both; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .view.active { animation: none; } }
+
+    .concept-layout { display: grid; grid-template-columns: minmax(590px, 1.55fr) minmax(260px, .7fr); gap: 44px; align-items: center; }
+    .concept-copy { max-width: 340px; padding: 26px 0; }
+    .concept-index { font: 12px/1 var(--mono); color: rgba(255,255,255,.62); letter-spacing: .15em; }
+    .concept-copy h1 { margin: 14px 0 10px; font: 600 31px/1.05 var(--display); letter-spacing: -.025em; }
+    .concept-copy p { margin: 0; color: rgba(244,248,246,.72); font-size: 14px; line-height: 1.75; }
+    .specs { margin: 26px 0 0; padding: 0; list-style: none; border-top: 1px solid rgba(255,255,255,.18); }
+    .specs li { display: grid; grid-template-columns: 72px 1fr; gap: 14px; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,.12); font-size: 12px; }
+    .specs span { color: rgba(255,255,255,.54); }
+    .specs b { font-weight: 500; color: rgba(255,255,255,.9); }
+
+    .window { width: 100%; min-height: 450px; overflow: hidden; color: #f5f8f7; position: relative; }
+    .titlebar { height: 48px; display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 0 12px 0 18px; }
+    .window-title { font: 600 14px/1 var(--display); letter-spacing: .005em; }
+    .actions { display: flex; align-items: center; gap: 2px; }
+    .icon-button { width: 34px; height: 34px; border: 0; border-radius: 9px; display: grid; place-items: center; color: inherit; background: transparent; cursor: pointer; }
+    .icon-button:hover { background: rgba(255,255,255,.1); }
+    .icon-button svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.55; stroke-linecap: round; stroke-linejoin: round; }
+    .content { padding: 14px 16px 18px; }
+    .file-grid { display: grid; grid-template-columns: repeat(4, minmax(92px, 1fr)); gap: 8px; }
+    .file { min-width: 0; min-height: 104px; padding: 13px 8px 10px; border: 1px solid transparent; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; }
+    .file:hover { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.09); }
+    .file svg { width: 38px; height: 38px; }
+    .file-name { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: rgba(255,255,255,.88); }
+    .file-list { display: grid; gap: 2px; }
+    .file-row { height: 46px; display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 12px; padding: 0 11px; border-radius: 8px; }
+    .file-row:hover { background: rgba(255,255,255,.07); }
+    .file-row svg { width: 26px; height: 26px; }
+    .file-row .meta { font: 10px/1 var(--mono); color: rgba(255,255,255,.44); }
+
+    /* A — Borderless transparency */
+    .a-window { border: 1px solid rgba(240,248,244,.28); border-radius: 14px; background: linear-gradient(135deg, rgba(19,27,24,.72), rgba(22,31,28,.56)); box-shadow: none; }
+    .a-window::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(110deg, rgba(255,255,255,.10), transparent 24% 78%, rgba(255,255,255,.04)); }
+    .a-window .titlebar { border-bottom: 1px solid rgba(255,255,255,.10); }
+    .a-window .content { padding-top: 10px; }
+
+    /* B — Frosted silver inset plate */
+    .b-shell { padding: 7px; border-radius: 20px; background: linear-gradient(145deg, rgba(255,255,255,.48), rgba(203,216,211,.18) 45%, rgba(255,255,255,.26)); box-shadow: 0 20px 52px rgba(9,17,14,.20); }
+    .b-window { border: 1px solid rgba(255,255,255,.52); border-radius: 14px; background: linear-gradient(155deg, rgba(50,62,58,.74), rgba(27,38,34,.66)); backdrop-filter: blur(24px) saturate(.82); box-shadow: inset 0 1px 0 rgba(255,255,255,.26), inset 0 -1px 0 rgba(0,0,0,.18); }
+    .b-window .titlebar { height: 54px; margin: 7px 7px 0; padding-left: 13px; border-radius: 10px; background: rgba(255,255,255,.075); }
+    .b-window .content { padding: 10px 14px 16px; }
+    .b-window .file { border-radius: 12px; }
+
+    /* C — Smoked crystal + titanium frame */
+    .c-frame { padding: 2px; border-radius: 9px; background: linear-gradient(115deg, #d8dddb, #727a77 14%, #eff2f1 31%, #555d5a 66%, #bbc2bf); box-shadow: 0 24px 60px rgba(0,0,0,.28); }
+    .c-window { min-height: 446px; border: 1px solid #202523; border-radius: 7px; background: linear-gradient(120deg, rgba(17,21,20,.91), rgba(31,37,35,.84) 55%, rgba(11,14,13,.92)); }
+    .c-window::after { content: ""; position: absolute; inset: 1px; border: 1px solid rgba(255,255,255,.08); border-radius: 6px; pointer-events: none; }
+    .c-window .titlebar { height: 44px; padding-left: 14px; border-bottom: 1px solid rgba(222,228,225,.17); background: linear-gradient(180deg, rgba(255,255,255,.055), transparent); }
+    .c-window .window-title { font-size: 13px; letter-spacing: .035em; }
+    .c-window .content { padding: 10px 13px 14px; }
+    .c-window .file-row { border-radius: 3px; border-bottom: 1px solid rgba(255,255,255,.055); }
+    .c-window .file-row:hover { background: rgba(255,255,255,.055); }
+
+    /* D — Jade cut edge */
+    .d-wrap { filter: drop-shadow(0 20px 46px rgba(8,17,14,.25)); }
+    .d-window { clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px); background: linear-gradient(140deg, rgba(20,40,33,.91), rgba(13,23,20,.86) 63%, rgba(22,34,30,.93)); }
+    .d-window::before { content: ""; position: absolute; inset: 1px; clip-path: inherit; border: 1px solid rgba(205,226,216,.32); pointer-events: none; }
+    .d-window::after { content: ""; position: absolute; left: 0; top: 58px; bottom: 20px; width: 3px; background: linear-gradient(#d2b77e, rgba(210,183,126,.08)); }
+    .d-window .titlebar { height: 52px; padding-left: 20px; border-bottom: 1px solid rgba(207,225,216,.13); }
+    .d-window .content { padding: 14px 18px 18px 21px; }
+    .d-window .file-grid { grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .d-window .file { min-height: 112px; align-items: flex-start; padding: 14px; border-radius: 2px; background: rgba(255,255,255,.026); border-color: rgba(255,255,255,.05); }
+    .d-window .file-name { width: 100%; }
+
+    .overview { width: min(1180px, 100%); }
+    .overview-head { display: flex; justify-content: space-between; align-items: end; margin-bottom: 22px; }
+    .overview-head h1 { margin: 0; font: 600 30px/1 var(--display); letter-spacing: -.02em; }
+    .overview-head p { margin: 8px 0 0; font-size: 13px; color: rgba(255,255,255,.62); }
+    .overview-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .overview-card { position: relative; min-height: 250px; padding: 18px; border: 1px solid rgba(255,255,255,.16); border-radius: 16px; background: rgba(8,12,11,.32); backdrop-filter: blur(8px); cursor: pointer; }
+    .overview-card:hover { border-color: rgba(226,196,139,.55); }
+    .overview-card h2 { margin: 0 0 4px; font: 600 16px/1.2 var(--display); }
+    .overview-card p { margin: 0 0 14px; color: rgba(255,255,255,.58); font-size: 11px; }
+    .mini-window { height: 168px; transform-origin: top left; pointer-events: none; }
+    .mini-window.window { min-height: 168px; }
+    .mini-window .titlebar { height: 35px; padding-left: 12px; }
+    .mini-window .window-title { font-size: 10px; }
+    .mini-window .icon-button { width: 25px; height: 25px; }
+    .mini-window .icon-button svg { width: 12px; height: 12px; }
+    .mini-window .content { padding: 8px 10px; }
+    .mini-files { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+    .mini-file { height: 73px; display: grid; place-items: center; border-radius: 6px; background: rgba(255,255,255,.035); }
+    .mini-file svg { width: 26px; height: 26px; }
+
+    .switcher {
+      position: fixed; z-index: 50; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; align-items: center; gap: 5px;
+      padding: 6px; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; background: rgba(9,12,11,.88);
+      backdrop-filter: blur(18px); box-shadow: 0 14px 40px rgba(0,0,0,.34);
+    }
+    .switcher button { height: 38px; border: 0; border-radius: 999px; color: #e9eeec; background: transparent; cursor: pointer; }
+    .switcher .arrow { width: 38px; font-size: 18px; }
+    .switcher .arrow:hover { background: rgba(255,255,255,.10); }
+    .switcher-label { min-width: 210px; padding: 0 14px; text-align: center; font-size: 12px; }
+    .switcher-label b { margin-right: 7px; color: #d5b57b; font: 600 11px var(--mono); }
+
+    @media (max-width: 900px) {
+      .stage { padding: 78px 18px 110px; }
+      .concept-layout { grid-template-columns: 1fr; gap: 18px; }
+      .concept-copy { max-width: none; display: grid; grid-template-columns: 1fr 1fr; gap: 18px 24px; padding: 0; }
+      .concept-copy > p, .concept-copy > h1, .concept-copy > .concept-index { grid-column: 1; }
+      .specs { grid-column: 2; grid-row: 1 / span 3; margin: 0; }
+      .overview-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+      .prototype-note span { display: none; }
+      .concept-copy { display: block; }
+      .specs { margin-top: 20px; }
+      .file-grid { grid-template-columns: repeat(3, 1fr); }
+      .d-window .file-grid { grid-template-columns: repeat(2, 1fr); }
+      .switcher-label { min-width: 160px; }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-grid" viewBox="0 0 20 20"><rect x="2" y="2" width="6" height="6"/><rect x="12" y="2" width="6" height="6"/><rect x="2" y="12" width="6" height="6"/><rect x="12" y="12" width="6" height="6"/></symbol>
+      <symbol id="i-folder-open" viewBox="0 0 20 20"><path d="M2 6.5h6l1.7 2H18l-2 8H3z"/><path d="M2 6.5V4h6l1.5 2"/></symbol>
+      <symbol id="i-gear" viewBox="0 0 20 20"><circle cx="10" cy="10" r="3"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4"/></symbol>
+      <symbol id="i-chevron" viewBox="0 0 20 20"><path d="M5 12.5 10 7.5l5 5"/></symbol>
+      <symbol id="f-folder" viewBox="0 0 48 48"><path fill="#e9c873" d="M4 12a4 4 0 0 1 4-4h11l4 5h17a4 4 0 0 1 4 4v21a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/><path fill="#f5dc91" d="M4 18h40v20a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/></symbol>
+      <symbol id="f-xlsx" viewBox="0 0 48 48"><path fill="#f0f3f2" d="M10 3h20l9 9v32H10z"/><path fill="#d8e1dd" d="M30 3v10h9z"/><rect x="5" y="17" width="27" height="23" rx="3" fill="#2c7654"/><path d="m12 23 4 5 4-5h4l-6 8 6 7h-4l-4-5-4 5H8l6-7-6-8z" fill="#fff"/></symbol>
+      <symbol id="f-doc" viewBox="0 0 48 48"><path fill="#f5f7f6" d="M10 3h20l9 9v32H10z"/><path fill="#d9e1de" d="M30 3v10h9z"/><path stroke="#7991a8" stroke-width="2" d="M16 21h17M16 27h17M16 33h12"/></symbol>
+      <symbol id="f-app" viewBox="0 0 48 48"><rect x="5" y="5" width="38" height="38" rx="9" fill="#263d53"/><path fill="#70b8df" d="m13 34 10-22h5l8 22h-6l-2-6h-7l-2 6zm10-11h4l-2-6z"/></symbol>
+      <symbol id="f-link" viewBox="0 0 48 48"><path fill="#e7ecea" d="M10 3h20l9 9v32H10z"/><path fill="#ccd8d3" d="M30 3v10h9z"/><path d="M19 30l-2 2a5 5 0 0 0 7 7l4-4M29 18l2-2a5 5 0 0 1 7 7l-4 4M21 27l10-10" fill="none" stroke="#5d83a6" stroke-width="3" stroke-linecap="round"/></symbol>
+    </defs>
+  </svg>
+
+  <div class="prototype-note"><b>PROTOTYPE</b><span>仅用于外观比较，不会应用到软件</span></div>
+  <button class="wallpaper-toggle" id="wallpaperToggle" type="button">切换浅色桌面</button>
+  <main class="stage">
+    <section class="view" data-variant="O">
+      <div class="overview">
+        <div class="overview-head"><div><h1>收纳窗口外观方向</h1><p>同一内容、同一桌面、四种材质与边框逻辑。点击卡片查看大图。</p></div></div>
+        <div class="overview-grid" id="overviewGrid"></div>
+      </div>
+    </section>
+
+    <section class="view" data-variant="A">
+      <div class="concept-layout"><div class="window a-window" data-window="grid"></div><aside class="concept-copy"><div class="concept-index">A / BORDERLESS</div><h1>无界透影</h1><p>让窗口退到内容之后。没有阴影与装饰框，只使用冷白发丝线、低对比透明渐变和一条安静的标题分隔。</p><ul class="specs"><li><span>材质</span><b>深色透明纯净面</b></li><li><span>边框</span><b>1px 冷白发丝线</b></li><li><span>标题栏</span><b>与内容同材质</b></li><li><span>适合</span><b>追求最低存在感</b></li></ul></aside></div>
+    </section>
+    <section class="view" data-variant="B">
+      <div class="concept-layout"><div class="b-shell"><div class="window b-window" data-window="grid"></div></div><aside class="concept-copy"><div class="concept-index">B / SILVER FROST</div><h1>雾银悬片</h1><p>用浅银外缘包住深色雾面，标题栏成为轻微内嵌的功能片。层次明确，但避免苹果式高光与过度模糊。</p><ul class="specs"><li><span>材质</span><b>低饱和雾银玻璃</b></li><li><span>边框</span><b>7px 半透明银缘</b></li><li><span>标题栏</span><b>内嵌圆角功能片</b></li><li><span>适合</span><b>浅色与复杂壁纸</b></li></ul></aside></div>
+    </section>
+    <section class="view" data-variant="C">
+      <div class="concept-layout"><div class="c-frame"><div class="window c-window" data-window="list"></div></div><aside class="concept-copy"><div class="concept-index">C / TITANIUM</div><h1>烟晶钛框</h1><p>双层金属边缘和紧凑列表把窗口处理成精密桌面工具。烟晶底保持安静，钛框只在边缘表达材质。</p><ul class="specs"><li><span>材质</span><b>高密度烟晶</b></li><li><span>边框</span><b>2px 多段钛金属</b></li><li><span>标题栏</span><b>44px 精密工具栏</b></li><li><span>适合</span><b>高密度文件与深色桌面</b></li></ul></aside></div>
+    </section>
+    <section class="view" data-variant="D">
+      <div class="concept-layout"><div class="d-wrap"><div class="window d-window" data-window="grid"></div></div><aside class="concept-copy"><div class="concept-index">D / CUT JADE</div><h1>墨玉折边</h1><p>切角轮廓、极细玉绿色内沿和单侧香槟结构线形成最强识别。内容卡片改为左对齐，更像归档托盘。</p><ul class="specs"><li><span>材质</span><b>深墨玉透明面</b></li><li><span>边框</span><b>八切角冷玉内沿</b></li><li><span>标题栏</span><b>平直结构栏</b></li><li><span>适合</span><b>希望窗口有品牌特征</b></li></ul></aside></div>
+    </section>
+  </main>
+
+  <nav class="switcher" aria-label="原型方案切换">
+    <button class="arrow" id="previous" type="button" aria-label="上一方案">‹</button>
+    <div class="switcher-label" id="switcherLabel"></div>
+    <button class="arrow" id="next" type="button" aria-label="下一方案">›</button>
+  </nav>
+
+  <script>
+    const variants = [
+      { key: 'O', name: '对比总览' },
+      { key: 'A', name: '无界透影' },
+      { key: 'B', name: '雾银悬片' },
+      { key: 'C', name: '烟晶钛框' },
+      { key: 'D', name: '墨玉折边' }
+    ];
+    const fileData = [
+      ['f-folder', '项目资料', '文件夹'], ['f-xlsx', '周报.xlsx', '18 KB'], ['f-doc', '账户.txt', '4 KB'],
+      ['f-app', '设计工具', '应用'], ['f-link', 'Adobe Photoshop.lnk', '快捷方式'], ['f-folder', '归档素材', '文件夹'],
+      ['f-doc', '会议纪要.docx', '32 KB'], ['f-xlsx', '预算表.xlsx', '24 KB']
+    ];
+    const actions = `<div class="actions">
+      <button class="icon-button" aria-label="切换显示方式" title="切换显示方式"><svg><use href="#i-grid"/></svg></button>
+      <button class="icon-button" aria-label="打开目录" title="打开目录"><svg><use href="#i-folder-open"/></svg></button>
+      <button class="icon-button" aria-label="窗口设置" title="窗口设置"><svg><use href="#i-gear"/></svg></button>
+      <button class="icon-button" aria-label="折叠窗口" title="折叠窗口"><svg><use href="#i-chevron"/></svg></button>
+    </div>`;
+    function renderWindow(target, mode) {
+      const files = mode === 'list'
+        ? `<div class="file-list">${fileData.slice(0,7).map(([icon,name,meta]) => `<div class="file-row"><svg><use href="#${icon}"/></svg><span class="file-name">${name}</span><span class="meta">${meta}</span></div>`).join('')}</div>`
+        : `<div class="file-grid">${fileData.map(([icon,name]) => `<div class="file"><svg><use href="#${icon}"/></svg><span class="file-name">${name}</span></div>`).join('')}</div>`;
+      target.innerHTML = `<header class="titlebar"><div class="window-title">工作归档</div>${actions}</header><div class="content">${files}</div>`;
+    }
+    document.querySelectorAll('[data-window]').forEach(node => renderWindow(node, node.dataset.window));
+
+    const miniClasses = { A: 'a-window', B: 'b-window', C: 'c-window', D: 'd-window' };
+    const miniDescriptions = { A: '无框 · 发丝线', B: '雾银 · 内嵌片', C: '烟晶 · 钛金属', D: '墨玉 · 八切角' };
+    const overview = document.getElementById('overviewGrid');
+    ['A','B','C','D'].forEach(key => {
+      const card = document.createElement('article');
+      card.className = 'overview-card'; card.tabIndex = 0; card.dataset.goto = key;
+      const shellStart = key === 'B' ? '<div class="b-shell">' : key === 'C' ? '<div class="c-frame">' : key === 'D' ? '<div class="d-wrap">' : '';
+      const shellEnd = key === 'A' ? '' : '</div>';
+      card.innerHTML = `<h2>${key} · ${variants.find(v => v.key === key).name}</h2><p>${miniDescriptions[key]}</p>${shellStart}<div class="window mini-window ${miniClasses[key]}"></div>${shellEnd}`;
+      renderWindow(card.querySelector('.mini-window'), 'grid');
+      card.addEventListener('click', () => setVariant(key));
+      card.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setVariant(key); } });
+      overview.appendChild(card);
+    });
+
+    function currentKey() {
+      const key = new URLSearchParams(location.search).get('variant')?.toUpperCase();
+      return variants.some(item => item.key === key) ? key : 'O';
+    }
+    function setVariant(key) {
+      const url = new URL(location.href); url.searchParams.set('variant', key); history.replaceState({}, '', url);
+      showVariant();
+    }
+    function showVariant() {
+      const key = currentKey();
+      document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.dataset.variant === key));
+      const item = variants.find(variant => variant.key === key);
+      document.getElementById('switcherLabel').innerHTML = `<b>${item.key}</b>${item.name}`;
+    }
+    function cycle(direction) {
+      const index = variants.findIndex(item => item.key === currentKey());
+      setVariant(variants[(index + direction + variants.length) % variants.length].key);
+    }
+    document.getElementById('previous').addEventListener('click', () => cycle(-1));
+    document.getElementById('next').addEventListener('click', () => cycle(1));
+    document.addEventListener('keydown', event => {
+      if (['INPUT','TEXTAREA'].includes(document.activeElement?.tagName) || document.activeElement?.isContentEditable) return;
+      if (event.key === 'ArrowLeft') cycle(-1);
+      if (event.key === 'ArrowRight') cycle(1);
+    });
+    const wallpaperButton = document.getElementById('wallpaperToggle');
+    wallpaperButton.addEventListener('click', () => {
+      document.body.classList.toggle('light-wallpaper');
+      wallpaperButton.textContent = document.body.classList.contains('light-wallpaper') ? '切换深色桌面' : '切换浅色桌面';
+    });
+    showVariant();
+  </script>
+</body>
+</html>

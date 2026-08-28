@@ -1,0 +1,411 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Quiet Luxury / 静奢玻璃：所有界面必须优先使用这些语义令牌。 -->
+    <Color x:Key="InkColor">#181B1A</Color>
+    <Color x:Key="GraphiteColor">#626966</Color>
+    <Color x:Key="MutedColor">#7B837F</Color>
+    <Color x:Key="PorcelainColor">#F2F4F1</Color>
+    <Color x:Key="SurfaceColor">#FCFDFC</Color>
+    <Color x:Key="LineColor">#D6DBD7</Color>
+    <Color x:Key="ChampagneColor">#AA8959</Color>
+    <Color x:Key="ChampagneDeepColor">#87683F</Color>
+    <Color x:Key="SageColor">#3F6154</Color>
+    <Color x:Key="DangerColor">#A94A45</Color>
+
+    <SolidColorBrush x:Key="InkBrush" Color="{StaticResource InkColor}" />
+    <SolidColorBrush x:Key="GraphiteBrush" Color="{StaticResource GraphiteColor}" />
+    <SolidColorBrush x:Key="MutedBrush" Color="{StaticResource MutedColor}" />
+    <SolidColorBrush x:Key="PorcelainBrush" Color="{StaticResource PorcelainColor}" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}" />
+    <SolidColorBrush x:Key="LineBrush" Color="{StaticResource LineColor}" />
+    <SolidColorBrush x:Key="ChampagneBrush" Color="{StaticResource ChampagneColor}" />
+    <SolidColorBrush x:Key="ChampagneDeepBrush" Color="{StaticResource ChampagneDeepColor}" />
+    <SolidColorBrush x:Key="SageBrush" Color="{StaticResource SageColor}" />
+    <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}" />
+    <SolidColorBrush x:Key="HoverBrush" Color="#F7F8F6" />
+    <SolidColorBrush x:Key="PressedBrush" Color="#ECEFED" />
+    <SolidColorBrush x:Key="DisabledSurfaceBrush" Color="#E8EBE8" />
+    <SolidColorBrush x:Key="DisabledTextBrush" Color="#9CA29E" />
+    <SolidColorBrush x:Key="GlassDarkBrush" Color="#D9232B28" />
+    <SolidColorBrush x:Key="GlassDarkHoverBrush" Color="#E02E3733" />
+    <SolidColorBrush x:Key="GlassLineBrush" Color="#3DFFFFFF" />
+    <SolidColorBrush x:Key="GlassTextBrush" Color="#F1F4F2" />
+    <SolidColorBrush x:Key="GlassMutedBrush" Color="#AAB7B0AC" />
+    <SolidColorBrush x:Key="GlassControlBrush" Color="#0FFFFFFF" />
+    <SolidColorBrush x:Key="GlassControlHoverBrush" Color="#1CFFFFFF" />
+    <SolidColorBrush x:Key="GlassControlPressedBrush" Color="#28FFFFFF" />
+    <SolidColorBrush x:Key="GlassSelectionFillBrush" Color="#24AA8959" />
+    <SolidColorBrush x:Key="GlassHolidayBrush" Color="#45AA8959" />
+    <SolidColorBrush x:Key="GlassAdjustedWorkdayBrush" Color="#3D3F6154" />
+    <SolidColorBrush x:Key="GlassWeekendBrush" Color="#16FFFFFF" />
+    <SolidColorBrush x:Key="GlassDangerTextBrush" Color="#FFFFB1AA" />
+    <SolidColorBrush x:Key="GlassSuccessTextBrush" Color="#FFAFD5C4" />
+
+    <!-- WPF 的 FontFamily 资源不使用逗号回退列表；缺失字形由 DirectWrite 自动回退。 -->
+    <FontFamily x:Key="DisplayFont">Bahnschrift</FontFamily>
+    <FontFamily x:Key="BodyFont">Segoe UI</FontFamily>
+    <FontFamily x:Key="DataFont">Cascadia Mono</FontFamily>
+
+    <Style x:Key="QuietFocusVisual" TargetType="Control">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border Margin="-3" BorderBrush="{StaticResource ChampagneBrush}"
+                            BorderThickness="2" CornerRadius="10" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Window">
+        <Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+        <Setter Property="Background" Value="{StaticResource PorcelainBrush}" />
+    </Style>
+
+    <Style TargetType="Button">
+        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="Padding" Value="16,8" />
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+        <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource QuietFocusVisual}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="9" SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{StaticResource HoverBrush}" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="#BDC4C0" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{StaticResource PressedBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Chrome" Property="Background" Value="{StaticResource DisabledSurfaceBrush}" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource LineBrush}" />
+                            <Setter Property="Foreground" Value="{StaticResource DisabledTextBrush}" />
+                            <Setter Property="Cursor" Value="Arrow" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="QuietPrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Background" Value="{StaticResource InkBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource InkBrush}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#292D2B" />
+                <Setter Property="BorderBrush" Value="#292D2B" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#0E100F" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="GlassWidgetIconButton" TargetType="Button">
+        <Setter Property="Width" Value="30" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="MinHeight" Value="30" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Foreground" Value="{StaticResource GlassMutedBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="FontFamily" Value="Segoe Fluent Icons" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource QuietFocusVisual}" />
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+            <Border x:Name="Chrome" Background="{TemplateBinding Background}" CornerRadius="8">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{StaticResource GlassControlHoverBrush}" /><Setter Property="Foreground" Value="{StaticResource GlassTextBrush}" /></Trigger>
+                <Trigger Property="IsPressed" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{StaticResource GlassControlPressedBrush}" /></Trigger>
+                <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.42" /></Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
+
+    <Style x:Key="GlassWidgetActionButton" TargetType="Button">
+        <Setter Property="Height" Value="32" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="Padding" Value="12,0" />
+        <Setter Property="Foreground" Value="{StaticResource GlassTextBrush}" />
+        <Setter Property="Background" Value="{StaticResource GlassControlBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassLineBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource QuietFocusVisual}" />
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+            <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="9">
+                <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{StaticResource GlassControlHoverBrush}" /></Trigger>
+                <Trigger Property="IsPressed" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{StaticResource GlassControlPressedBrush}" /></Trigger>
+                <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.42" /></Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
+
+    <Style x:Key="GlassWidgetAccentButton" TargetType="Button" BasedOn="{StaticResource GlassWidgetActionButton}">
+        <Setter Property="Foreground" Value="{StaticResource ChampagneBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource ChampagneBrush}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style x:Key="GlassWidgetTextBox" TargetType="TextBox">
+        <Setter Property="MinHeight" Value="34" />
+        <Setter Property="Padding" Value="11,6" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{StaticResource GlassTextBrush}" />
+        <Setter Property="CaretBrush" Value="{StaticResource ChampagneBrush}" />
+        <Setter Property="SelectionBrush" Value="{StaticResource ChampagneBrush}" />
+        <Setter Property="Background" Value="{StaticResource GlassControlBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassLineBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource QuietFocusVisual}" />
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TextBox">
+            <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="9">
+                <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" />
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{StaticResource GlassControlHoverBrush}" /></Trigger>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource ChampagneBrush}" /></Trigger>
+                <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.42" /></Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
+
+    <Style x:Key="GlassWidgetDateChoice" TargetType="ToggleButton">
+        <Setter Property="Height" Value="48" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="Padding" Value="2,0" />
+        <Setter Property="Foreground" Value="{StaticResource GlassMutedBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource QuietFocusVisual}" />
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToggleButton">
+            <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
+                <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{StaticResource GlassControlHoverBrush}" /><Setter Property="Foreground" Value="{StaticResource GlassTextBrush}" /></Trigger>
+                <Trigger Property="IsChecked" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{StaticResource GlassControlPressedBrush}" /><Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GlassLineBrush}" /><Setter Property="Foreground" Value="{StaticResource GlassTextBrush}" /></Trigger>
+                <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.42" /></Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
+
+    <Style x:Key="GlassWidgetCheckToggle" TargetType="ToggleButton">
+        <Setter Property="Width" Value="24" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="Foreground" Value="{StaticResource GlassTextBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassLineBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="FontFamily" Value="Segoe Fluent Icons" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource QuietFocusVisual}" />
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToggleButton">
+            <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7">
+                <TextBlock x:Name="CheckGlyph" HorizontalAlignment="Center" VerticalAlignment="Center" Text="" />
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{StaticResource GlassControlHoverBrush}" /></Trigger>
+                <Trigger Property="IsChecked" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{StaticResource GlassControlPressedBrush}" /><Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource ChampagneBrush}" /><Setter TargetName="CheckGlyph" Property="Text" Value="&#xE73E;" /></Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
+
+    <Style TargetType="TextBox">
+        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="Padding" Value="10,7" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+        <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource QuietFocusVisual}" />
+    </Style>
+
+    <Style TargetType="ComboBox">
+        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="Padding" Value="8,5" />
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+        <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource QuietFocusVisual}" />
+    </Style>
+
+    <Style TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{StaticResource GraphiteBrush}" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource QuietFocusVisual}" />
+    </Style>
+
+    <Style x:Key="QuietVerticalScrollThumb" TargetType="Thumb">
+        <Setter Property="MinHeight" Value="30" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Border x:Name="ThumbBody" Width="4" Margin="3,0" CornerRadius="2" Background="#70858C88" />
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ThumbBody" Property="Background" Value="{StaticResource GraphiteBrush}" /></Trigger>
+                        <Trigger Property="IsDragging" Value="True"><Setter TargetName="ThumbBody" Property="Background" Value="{StaticResource ChampagneBrush}" /></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="QuietHorizontalScrollThumb" TargetType="Thumb">
+        <Setter Property="MinWidth" Value="30" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Border x:Name="ThumbBody" Height="4" Margin="0,3" CornerRadius="2" Background="#70858C88" />
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ThumbBody" Property="Background" Value="{StaticResource GraphiteBrush}" /></Trigger>
+                        <Trigger Property="IsDragging" Value="True"><Setter TargetName="ThumbBody" Property="Background" Value="{StaticResource ChampagneBrush}" /></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ScrollBar">
+        <Setter Property="Width" Value="10" />
+        <Setter Property="MinWidth" Value="10" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid Width="10" Background="Transparent">
+                        <Track x:Name="PART_Track" IsDirectionReversed="True">
+                            <Track.DecreaseRepeatButton><RepeatButton Background="Transparent" BorderThickness="0" Command="ScrollBar.PageUpCommand" /></Track.DecreaseRepeatButton>
+                            <Track.Thumb><Thumb Style="{StaticResource QuietVerticalScrollThumb}" /></Track.Thumb>
+                            <Track.IncreaseRepeatButton><RepeatButton Background="Transparent" BorderThickness="0" Command="ScrollBar.PageDownCommand" /></Track.IncreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Width" Value="Auto" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="Height" Value="10" />
+                <Setter Property="MinHeight" Value="10" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ScrollBar">
+                            <Grid Height="10" Background="Transparent">
+                                <Track x:Name="PART_Track">
+                                    <Track.DecreaseRepeatButton><RepeatButton Background="Transparent" BorderThickness="0" Command="ScrollBar.PageLeftCommand" /></Track.DecreaseRepeatButton>
+                                    <Track.Thumb><Thumb Style="{StaticResource QuietHorizontalScrollThumb}" /></Track.Thumb>
+                                    <Track.IncreaseRepeatButton><RepeatButton Background="Transparent" BorderThickness="0" Command="ScrollBar.PageRightCommand" /></Track.IncreaseRepeatButton>
+                                </Track>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="ListView">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style TargetType="ListViewItem">
+        <Setter Property="MinHeight" Value="42" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="BorderBrush" Value="#66D6DBD7" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource QuietFocusVisual}" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{StaticResource HoverBrush}" /></Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="#FFFDFC" />
+                <Setter Property="BorderBrush" Value="#99AA8959" />
+                <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="GridViewColumnHeader">
+        <Setter Property="Height" Value="38" />
+        <Setter Property="Padding" Value="10,0" />
+        <Setter Property="Background" Value="#F8F9F7" />
+        <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+        <Setter Property="FontFamily" Value="{StaticResource DataFont}" />
+        <Setter Property="FontSize" Value="10" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="GridViewColumnHeader">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="True">
+                        <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="Center" RecognizesAccessKey="True" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="QuietCard" TargetType="Border">
+        <Setter Property="Background" Value="#EFFFFFFF" />
+        <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="18" />
+    </Style>
+
+    <Style x:Key="PageTitle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+    </Style>
+
+    <Style x:Key="PageSubtitle" TargetType="TextBlock">
+        <Setter Property="Margin" Value="0,5,0,0" />
+        <Setter Property="Foreground" Value="{StaticResource GraphiteBrush}" />
+    </Style>
+
+    <Style x:Key="SectionTitle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+    </Style>
+</ResourceDictionary>

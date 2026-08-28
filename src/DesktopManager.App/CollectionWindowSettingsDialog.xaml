@@ -1,0 +1,94 @@
+<Window x:Class="DesktopManager.App.CollectionWindowSettingsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="窗口外观" Width="580" Height="570" MinWidth="540" MinHeight="540"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
+        Background="{StaticResource PorcelainBrush}" FontFamily="{StaticResource BodyFont}"
+        Foreground="{StaticResource InkBrush}" UseLayoutRounding="True" SnapsToDevicePixels="True">
+    <Window.Resources>
+        <Style x:Key="FillChoice" TargetType="RadioButton">
+            <Setter Property="Margin" Value="4" /><Setter Property="Padding" Value="15,11" />
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}" /><Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+            <Setter Property="BorderThickness" Value="1" /><Setter Property="FocusVisualStyle" Value="{StaticResource QuietFocusVisual}" />
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RadioButton">
+                <Border x:Name="ChoiceBorder" Padding="{TemplateBinding Padding}" CornerRadius="10" Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"><ContentPresenter /></Border>
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ChoiceBorder" Property="Background" Value="{StaticResource HoverBrush}" /></Trigger>
+                    <Trigger Property="IsChecked" Value="True"><Setter TargetName="ChoiceBorder" Property="BorderBrush" Value="{StaticResource ChampagneBrush}" /><Setter TargetName="ChoiceBorder" Property="BorderThickness" Value="2" /></Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate></Setter.Value></Setter>
+        </Style>
+        <Style x:Key="DialogButton" TargetType="Button">
+            <Setter Property="MinWidth" Value="88" /><Setter Property="Height" Value="38" /><Setter Property="Margin" Value="8,0,0,0" />
+            <Setter Property="Padding" Value="16,0" /><Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource InkBrush}" /><Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+            <Setter Property="BorderThickness" Value="1" /><Setter Property="FocusVisualStyle" Value="{StaticResource QuietFocusVisual}" />
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="28,24,28,22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <TextBlock FontFamily="{StaticResource DisplayFont}" FontSize="21" FontWeight="SemiBold" Text="窗口外观" />
+            <TextBlock Margin="0,5,0,0" Foreground="{StaticResource GraphiteBrush}" Text="透明表面可使用纯色或渐变色；透明度由设置页统一控制。" />
+        </StackPanel>
+
+        <UniformGrid Grid.Row="1" Margin="-4,17,-4,0" Columns="2">
+            <RadioButton x:Name="SolidChoice" GroupName="FillMode" Style="{StaticResource FillChoice}" AutomationProperties.Name="纯色填充" Checked="FillChoice_Checked">
+                <StackPanel><TextBlock FontWeight="SemiBold" Text="纯色" /><TextBlock Margin="0,4,0,0" FontSize="11" Foreground="{StaticResource MutedBrush}" Text="安静统一的透明色面" /></StackPanel>
+            </RadioButton>
+            <RadioButton x:Name="GradientChoice" GroupName="FillMode" Style="{StaticResource FillChoice}" AutomationProperties.Name="渐变色填充" Checked="FillChoice_Checked">
+                <StackPanel><TextBlock FontWeight="SemiBold" Text="渐变色" /><TextBlock Margin="0,4,0,0" FontSize="11" Foreground="{StaticResource MutedBrush}" Text="从上到下的双端渐变" /></StackPanel>
+            </RadioButton>
+        </UniformGrid>
+
+        <Grid Grid.Row="2" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Text="颜色" />
+            <Button Grid.Column="1" Style="{StaticResource DialogButton}" Margin="0" Click="ReadDesktopColors_Click"
+                    AutomationProperties.Name="读取桌面颜色并生成适配外观">
+                <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe Fluent Icons" Text="&#xE790;" /><TextBlock Margin="8,0,0,0" Text="从桌面取色" /></StackPanel>
+            </Button>
+        </Grid>
+
+        <StackPanel Grid.Row="3" Margin="0,10,0,0">
+            <Button Height="42" HorizontalContentAlignment="Stretch" Click="ChooseStartColor_Click" Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource LineBrush}" BorderThickness="1" AutomationProperties.Name="选择纯色或渐变起始色">
+                <Grid Margin="8,0"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <Border x:Name="StartColorPreview" Width="22" Height="22" CornerRadius="6" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" />
+                    <TextBlock x:Name="StartColorLabel" Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" Text="表面颜色" />
+                    <TextBlock x:Name="StartColorText" Grid.Column="2" VerticalAlignment="Center" FontFamily="{StaticResource DataFont}" />
+                </Grid>
+            </Button>
+            <Button x:Name="EndColorButton" Margin="0,8,0,0" Height="42" HorizontalContentAlignment="Stretch" Click="ChooseEndColor_Click"
+                    Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" AutomationProperties.Name="选择渐变结束色">
+                <Grid Margin="8,0"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <Border x:Name="EndColorPreview" Width="22" Height="22" CornerRadius="6" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" />
+                    <TextBlock Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" Text="结束颜色" />
+                    <TextBlock x:Name="EndColorText" Grid.Column="2" VerticalAlignment="Center" FontFamily="{StaticResource DataFont}" />
+                </Grid>
+            </Button>
+            <TextBlock x:Name="ColorStatusText" Margin="2,8,0,0" FontSize="11" Foreground="{StaticResource MutedBrush}" Text="可手动选色，也可读取当前桌面自动生成。" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="4" Margin="0,17,0,0">
+            <Grid><TextBlock FontWeight="SemiBold" Text="预览" /><TextBlock x:Name="GlobalOpacityText" HorizontalAlignment="Right" Foreground="{StaticResource ChampagneDeepBrush}" FontFamily="{StaticResource DataFont}" /></Grid>
+            <Border x:Name="PreviewSurface" Height="88" Margin="0,9,0,0" CornerRadius="12" BorderBrush="{StaticResource GlassLineBrush}" BorderThickness="1">
+                <StackPanel Margin="16,0" VerticalAlignment="Center"><TextBlock Foreground="{StaticResource GlassTextBrush}" FontWeight="SemiBold" Text="工作归档" /><TextBlock Margin="0,5,0,0" Foreground="{StaticResource GlassMutedBrush}" FontSize="11" Text="文件图标与文字保持完整不透明" /></StackPanel>
+            </Border>
+        </StackPanel>
+
+        <Grid Grid.Row="5" Margin="0,20,0,0">
+            <Button x:Name="RestoreGlobalButton" HorizontalAlignment="Left" Style="{StaticResource DialogButton}" Margin="0" Click="RestoreGlobal_Click" Content="恢复默认" />
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button Style="{StaticResource DialogButton}" IsCancel="True" Content="取消" />
+                <Button Style="{StaticResource DialogButton}" Click="ApplyAll_Click" Content="应用到所有窗口" ToolTip="清除其他窗口的单独颜色设置" />
+                <Button Style="{StaticResource QuietPrimaryButton}" MinWidth="112" Height="38" Margin="8,0,0,0" IsDefault="True" Click="Apply_Click" Content="应用到当前窗口" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

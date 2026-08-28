@@ -1,0 +1,25 @@
+<Window x:Class="DesktopManager.App.TodoItemDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="编辑待办事项" Width="500" Height="290" MinWidth="460" MinHeight="270"
+        ResizeMode="CanResize" WindowStartupLocation="CenterScreen"
+        Background="{StaticResource PorcelainBrush}"
+        FontFamily="{StaticResource BodyFont}" Foreground="{StaticResource InkBrush}">
+    <Grid Margin="32,28,32,24">
+        <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+        <StackPanel>
+            <TextBlock FontWeight="SemiBold" Text="事项名称" />
+            <TextBox x:Name="TitleText" Margin="0,8,0,0" AutomationProperties.Name="待办事项名称" TextChanged="Input_Changed" />
+            <TextBlock Margin="0,20,0,0" FontWeight="SemiBold" Text="截止日期（可留空）" />
+            <DatePicker x:Name="DueDatePicker" Margin="0,8,0,0" Height="36" AutomationProperties.Name="待办事项截止日期" />
+            <TextBlock x:Name="ValidationText" Margin="0,14,0,0" Foreground="{StaticResource MutedBrush}" Text="修改会自动同步到桌面窗口。" />
+        </StackPanel>
+        <Grid Grid.Row="1" Margin="0,18,0,0">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <TextBlock VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}" FontSize="11" Text="Enter 保存 · Esc 取消" />
+            <Button Grid.Column="1" MinWidth="88" IsCancel="True" Content="取消" />
+            <Button x:Name="SaveButton" Grid.Column="2" MinWidth="104" Margin="8,0,0,0" Style="{StaticResource QuietPrimaryButton}"
+                    IsDefault="True" Click="Save_Click" Content="保存修改" />
+        </Grid>
+    </Grid>
+</Window>

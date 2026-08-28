@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>桌面管理 · 方案 C 静奢玻璃</title>
+  <style>
+    :root{
+      --ink:#181b1a;--graphite:#626966;--muted:#909793;--porcelain:#f2f4f1;
+      --paper:rgba(255,255,255,.78);--solid:#fff;--line:rgba(35,45,41,.13);
+      --champagne:#aa8959;--champagne-deep:#87683f;--sage:#3f6154;
+      --shadow:0 24px 70px rgba(22,30,27,.13),0 2px 8px rgba(22,30,27,.05);
+      --display:"Bahnschrift","Segoe UI Variable Display","Microsoft YaHei UI",sans-serif;
+      --body:"Segoe UI Variable","Microsoft YaHei UI",sans-serif;
+      --data:"Cascadia Mono","SFMono-Regular",Consolas,monospace;
+    }
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#dfe3df;color:var(--ink);font-family:var(--body)}
+    button,input{font:inherit}button{cursor:pointer}.icon{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+    button:focus-visible,input:focus-visible{outline:3px solid rgba(170,137,89,.32);outline-offset:3px}
+    .preview{min-height:100vh;display:grid;grid-template-rows:62px 1fr;overflow:hidden;background:
+      radial-gradient(circle at 75% 8%,rgba(255,255,255,.94),transparent 32%),
+      linear-gradient(135deg,#e4e8e4 0%,#cfd6d2 100%)}
+    .previewbar{display:flex;align-items:center;padding:0 22px;border-bottom:1px solid rgba(25,35,31,.12);background:rgba(244,246,243,.78);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:10}
+    .brand{display:flex;align-items:center;gap:11px;margin-right:auto;font-family:var(--display);font-weight:650;letter-spacing:.02em}.brandmark{width:23px;height:23px;border:1px solid var(--ink);display:grid;place-items:center}.brandmark:after{content:"";width:5px;height:15px;background:var(--champagne)}
+    .viewtabs{display:flex;gap:4px;padding:4px;background:rgba(0,0,0,.045);border-radius:12px}.viewtab{min-height:38px;padding:0 16px;border:0;border-radius:9px;background:transparent;color:var(--graphite)}.viewtab.active{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(30,40,36,.08)}
+    .version{margin-left:18px;color:var(--muted);font:11px var(--data);letter-spacing:.08em}
+    .stage{position:relative;min-height:0}.view{display:none;position:absolute;inset:0}.view.active{display:block}
+
+    /* 主应用：结构比装饰更重要 */
+    .app{height:100%;display:grid;grid-template-columns:214px 1fr;background:rgba(246,248,245,.84);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px)}
+    .rail{position:relative;padding:36px 21px 25px;border-right:1px solid var(--line);display:flex;flex-direction:column}.rail:after{content:"";position:absolute;top:0;right:-1px;width:1px;height:132px;background:var(--champagne)}
+    .railhead{font:700 18px var(--display);letter-spacing:.02em;margin:1px 12px 41px}.railhead small{display:block;margin-top:5px;color:var(--muted);font:10px var(--data);letter-spacing:.12em;text-transform:uppercase}
+    .nav{display:grid;gap:6px}.nav button{min-height:46px;border:0;border-radius:10px;background:transparent;color:var(--graphite);display:flex;align-items:center;gap:13px;padding:0 13px;text-align:left}.nav button:hover{background:rgba(255,255,255,.58);color:var(--ink)}.nav button.active{background:#fff;color:var(--ink);box-shadow:0 4px 18px rgba(30,40,36,.07)}.nav button.active:after{content:"";width:5px;height:5px;border-radius:50%;background:var(--champagne);margin-left:auto}
+    .nav .icon{width:18px}.railfoot{margin-top:auto;padding:17px 13px 0;border-top:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1.6}.railfoot strong{display:block;color:var(--sage);font-size:12px;font-weight:600}
+    .workspace{min-width:0;overflow:auto;padding:43px clamp(34px,4.5vw,74px) 36px}.topline{display:flex;align-items:flex-end;gap:24px;margin-bottom:37px}.heading{margin-right:auto}.eyebrow{color:var(--champagne-deep);font:11px var(--data);letter-spacing:.16em;text-transform:uppercase}.heading h1{margin:8px 0 5px;font:600 clamp(29px,3vw,42px)/1.05 var(--display);letter-spacing:-.035em}.heading p{margin:0;color:var(--graphite);font-size:14px}
+    .ghost,.primary{min-height:44px;border-radius:10px;padding:0 17px;display:inline-flex;align-items:center;justify-content:center;gap:9px}.ghost{border:1px solid var(--line);background:rgba(255,255,255,.45);color:var(--ink)}.ghost:hover{background:white}.primary{border:1px solid var(--ink);background:var(--ink);color:white;box-shadow:0 8px 22px rgba(24,27,26,.16)}.primary:hover{background:#292d2b}.primary .icon{width:17px}
+    .datum{position:relative;display:grid;grid-template-columns:1.35fr repeat(3,.75fr);min-height:91px;margin-bottom:30px;border-top:1px solid var(--ink);border-bottom:1px solid var(--line)}.datum:before{content:"";position:absolute;top:-2px;left:0;width:18%;height:3px;background:var(--champagne)}.metric{padding:22px 22px 17px;border-right:1px solid var(--line)}.metric:last-child{border:0}.metric-label{color:var(--muted);font-size:12px}.metric-value{margin-top:7px;font:500 23px var(--display);letter-spacing:-.02em}.metric:first-child .metric-value{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.metric-value small{font:11px var(--body);color:var(--sage);margin-left:7px}
+    .rulehead{display:flex;align-items:center;margin:0 0 13px}.rulehead h2{margin:0;font:600 17px var(--display);letter-spacing:.01em}.rulehead span{margin-left:11px;color:var(--muted);font:11px var(--data)}.rulehead .filter{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--graphite);font-size:13px}.filter button{width:40px;height:40px;border:1px solid var(--line);background:white;border-radius:9px;display:grid;place-items:center;color:var(--graphite)}
+    .ruleboard{background:rgba(255,255,255,.56);border:1px solid rgba(255,255,255,.8);box-shadow:0 18px 55px rgba(30,40,36,.07);border-radius:14px;overflow:hidden}.rulegrid{display:grid;grid-template-columns:minmax(180px,1.4fr) minmax(150px,1fr) minmax(160px,1.2fr) 110px;align-items:center}.columns{min-height:41px;padding:0 20px;border-bottom:1px solid var(--line);color:var(--muted);font:10px var(--data);letter-spacing:.1em;text-transform:uppercase}.rulerow{position:relative;min-height:75px;padding:0 20px;border-bottom:1px solid var(--line);transition:background .2s}.rulerow:last-child{border:0}.rulerow:hover{background:rgba(255,255,255,.76)}.rulerow.selected:before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;background:var(--champagne)}
+    .ruleinfo{display:flex;align-items:center;gap:13px;min-width:0}.ruleglyph{width:38px;height:38px;border:1px solid var(--line);border-radius:9px;display:grid;place-items:center;background:white;color:var(--champagne-deep)}.ruleglyph .icon{width:17px}.ruletext{min-width:0}.ruletext strong{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ruletext small{display:block;margin-top:4px;color:var(--muted);font-size:11px}.path{font:11px var(--data);color:var(--graphite);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:16px}.count{font:13px var(--data);color:var(--ink)}.state{justify-self:end;font-size:12px;color:var(--sage);display:flex;align-items:center;gap:7px}.state:before{content:"";width:6px;height:6px;border-radius:50%;background:#6a8d7d}.state.paused{color:var(--muted)}.state.paused:before{background:#b9bcb9}
+    .footnote{display:flex;justify-content:space-between;margin-top:14px;color:var(--muted);font-size:11px}.footnote code{font-family:var(--data);color:var(--graphite)}
+
+    /* 桌面收纳窗：安静地贴在桌面上 */
+    .desktop{height:100%;position:relative;overflow:hidden;background:
+      radial-gradient(ellipse at 58% 40%,rgba(205,218,211,.38),transparent 35%),
+      linear-gradient(150deg,#2e3733 0%,#17201d 46%,#0d1311 100%)}
+    .desktop:before{content:"";position:absolute;inset:0;opacity:.22;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:44px 44px;mask-image:linear-gradient(to bottom,transparent,#000)}
+    .desktoplabel{position:absolute;left:42px;bottom:33px;color:rgba(255,255,255,.36);font:10px var(--data);letter-spacing:.17em;text-transform:uppercase}.desktoplabel strong{display:block;margin-bottom:8px;color:rgba(255,255,255,.8);font:500 24px var(--display);letter-spacing:-.02em;text-transform:none}
+    .collect{position:absolute;display:flex;flex-direction:column;color:#eef2ef;background:rgba(29,37,34,.55);border:1px solid rgba(255,255,255,.16);box-shadow:0 28px 80px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.06);backdrop-filter:blur(28px) saturate(115%);-webkit-backdrop-filter:blur(28px) saturate(115%);border-radius:16px;overflow:hidden}.collect:before{content:"";position:absolute;left:0;top:18px;width:2px;height:42px;background:#c5a978}.collect.main{left:9%;top:10%;width:min(500px,42vw);height:58%}.collect.small{right:7%;top:17%;width:min(390px,34vw);height:46%}.collect.third{right:16%;bottom:7%;width:min(360px,31vw);height:25%}
+    .ctitle{height:63px;display:flex;align-items:center;padding:0 18px 0 22px;border-bottom:1px solid rgba(255,255,255,.1)}.ctitle h3{margin:0;font:550 15px var(--display);letter-spacing:.015em}.ctitle span{margin-left:10px;color:rgba(255,255,255,.42);font:10px var(--data)}.cactions{display:flex;gap:3px;margin-left:auto}.cactions button{width:38px;height:38px;border:0;border-radius:9px;background:transparent;color:rgba(255,255,255,.6);display:grid;place-items:center}.cactions button:hover{background:rgba(255,255,255,.09);color:white}.cactions .icon{width:17px}
+    .files{display:grid;grid-template-columns:repeat(4,minmax(64px,1fr));gap:17px 9px;padding:22px;overflow:auto}.file{min-width:0;text-align:center;color:rgba(255,255,255,.82);font-size:11px}.fileicon{height:48px;display:grid;place-items:center;margin:auto auto 8px;filter:drop-shadow(0 6px 9px rgba(0,0,0,.22))}.fileicon svg{width:40px;height:40px}.file span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.file small{display:block;margin-top:3px;color:rgba(255,255,255,.38);font:9px var(--data)}.files.compact{grid-template-columns:repeat(3,1fr);padding:18px;gap:13px}.compact .fileicon{height:42px}.dropcue{margin:auto;text-align:center;color:rgba(255,255,255,.43);font-size:12px;line-height:1.8}.dropcue .ring{width:38px;height:38px;margin:0 auto 8px;border:1px dashed rgba(197,169,120,.65);border-radius:50%;display:grid;place-items:center;color:#c5a978}.dropcue .icon{width:17px}.original{position:absolute;right:31px;bottom:27px;display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.48);font-size:11px}.original:before{content:"";width:6px;height:6px;border-radius:50%;background:#87a796;box-shadow:0 0 0 4px rgba(135,167,150,.1)}
+
+    /* 设计说明 */
+    .notes{height:100%;overflow:auto;padding:clamp(32px,5vw,76px);background:var(--porcelain)}.notewrap{max-width:980px;margin:auto}.notes .eyebrow{margin-bottom:14px}.notes h1{margin:0 0 18px;font:600 clamp(32px,5vw,58px)/1 var(--display);letter-spacing:-.045em;max-width:720px}.notes>div>p{max-width:720px;color:var(--graphite);font-size:16px;line-height:1.75}.principles{display:grid;grid-template-columns:repeat(3,1fr);margin-top:52px;border-top:1px solid var(--ink)}.principle{padding:25px 30px 30px 0;border-right:1px solid var(--line)}.principle+ .principle{padding-left:30px}.principle:last-child{border:0}.principle b{font:500 14px var(--display)}.principle p{color:var(--graphite);font-size:13px;line-height:1.7}.swatches{display:flex;gap:12px;margin-top:42px}.swatch{width:70px}.swatch i{display:block;height:34px;border:1px solid var(--line)}.swatch small{display:block;margin-top:7px;font:9px var(--data);color:var(--muted)}
+
+    @media(max-width:900px){
+      .app{grid-template-columns:76px 1fr}.rail{padding:28px 12px}.railhead{font-size:0;margin:0 auto 35px}.railhead:before{content:"DM";font:650 13px var(--data)}.railhead small,.nav button span,.railfoot{display:none}.nav button{justify-content:center;padding:0}.workspace{padding:34px 26px}.datum{grid-template-columns:1.3fr repeat(3,.7fr)}.metric{padding:18px 14px}.rulegrid{grid-template-columns:minmax(180px,1.4fr) minmax(140px,1fr) 80px}.rulegrid>*:nth-child(3){display:none}.collect.main{left:5%;width:55vw}.collect.small{right:4%;width:38vw}.collect.third{display:none}
+    }
+    @media(max-width:620px){
+      .preview{grid-template-rows:56px 1fr}.previewbar{padding:0 10px}.brand{font-size:0}.brandmark{width:21px;height:21px}.version{display:none}.viewtabs{margin-left:auto}.viewtab{padding:0 10px;font-size:12px;min-height:36px}.app{grid-template-columns:1fr;display:block}.rail{position:absolute;left:0;right:0;bottom:0;height:66px;z-index:8;padding:8px 12px;background:rgba(248,249,247,.93);backdrop-filter:blur(18px);border:0;border-top:1px solid var(--line)}.railhead,.railfoot{display:none}.nav{grid-template-columns:repeat(5,1fr)}.nav button{min-height:48px}.nav button.active:after{position:absolute;margin:0 0 37px}.workspace{height:100%;padding:26px 18px 91px}.topline{align-items:flex-start;margin-bottom:24px}.heading h1{font-size:28px}.heading p,.topline .ghost{display:none}.primary{padding:0 14px;font-size:13px}.datum{grid-template-columns:1fr 1fr;min-height:auto}.metric{border-bottom:1px solid var(--line)}.metric:nth-child(2){border-right:0}.metric:first-child .metric-value{font-size:13px}.metric-value{font-size:20px}.rulegrid{grid-template-columns:minmax(170px,1fr) 72px}.rulegrid>*:nth-child(2),.rulegrid>*:nth-child(3){display:none}.columns,.rulerow{padding-left:14px;padding-right:14px}.rulerow{min-height:69px}.ruleglyph{width:34px;height:34px}.footnote{display:none}.desktoplabel{left:20px;bottom:18px}.collect.main{left:5%;top:7%;width:90%;height:49%}.collect.small{left:13%;right:auto;top:auto;bottom:9%;width:82%;height:31%}.collect.third{display:none}.files{grid-template-columns:repeat(3,1fr);padding:17px 12px;gap:13px 4px}.compact{grid-template-columns:repeat(4,1fr)!important}.ctitle{height:54px}.original{right:18px;bottom:13px;font-size:9px}.principles{grid-template-columns:1fr}.principle,.principle+ .principle{padding:20px 0;border-right:0;border-bottom:1px solid var(--line)}.swatches{flex-wrap:wrap}
+    }
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+<svg aria-hidden="true" width="0" height="0" style="position:absolute">
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 4h16v16H4zM4 14h5l2 3h2l2-3h5"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/></symbol>
+  <symbol id="i-rule" viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h5M8 16h7"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1A8 8 0 0 0 15 6l-.3-2.6h-4L10.4 6A8 8 0 0 0 8 7.1l-2.4-1-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.4-1A8 8 0 0 0 10.4 18l.3 2.6h4L15 18a8 8 0 0 0 1.5-1.1l2.4 1 2-3.4-2-1.5a7 7 0 0 0 .1-1z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7h7l2 2h9v10H3z"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m5 18 5-5 3 3 2-2 4 4"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6zM14 3v5h4"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+</svg>
+<div class="preview">
+  <header class="previewbar">
+    <div class="brand"><span class="brandmark" aria-hidden="true"></span>桌面管理</div>
+    <nav class="viewtabs" aria-label="预览视图">
+      <button class="viewtab active" data-view="appview">主界面</button>
+      <button class="viewtab" data-view="deskview">收纳窗口</button>
+      <button class="viewtab" data-view="notesview">设计说明</button>
+    </nav>
+    <span class="version">CONCEPT C / 03</span>
+  </header>
+  <main class="stage">
+    <section class="view active" id="appview">
+      <div class="app">
+        <aside class="rail">
+          <div class="railhead">桌面管理<small>Desktop filing</small></div>
+          <nav class="nav" aria-label="主导航">
+            <button class="active"><svg class="icon"><use href="#i-inbox"/></svg><span>收件箱</span></button>
+            <button><svg class="icon"><use href="#i-star"/></svg><span>收藏夹</span></button>
+            <button><svg class="icon"><use href="#i-rule"/></svg><span>规则与收纳</span></button>
+            <button><svg class="icon"><use href="#i-clock"/></svg><span>历史</span></button>
+            <button><svg class="icon"><use href="#i-settings"/></svg><span>设置</span></button>
+          </nav>
+          <div class="railfoot"><strong>桌面已保持整洁</strong>上次收纳 · 今天 09:42</div>
+        </aside>
+        <section class="workspace">
+          <header class="topline">
+            <div class="heading"><div class="eyebrow">Desktop inbox</div><h1>桌面收件箱</h1><p>规则决定去向，收纳窗口呈现内容。</p></div>
+            <button class="ghost">扫描桌面</button>
+            <button class="primary"><svg class="icon"><use href="#i-play"/></svg>立即收纳</button>
+          </header>
+          <section class="datum" aria-label="桌面状态">
+            <div class="metric"><div class="metric-label">监控位置</div><div class="metric-value">C:\Users\GAOMON\Desktop</div></div>
+            <div class="metric"><div class="metric-label">待收纳</div><div class="metric-value">12 <small>项</small></div></div>
+            <div class="metric"><div class="metric-label">已匹配</div><div class="metric-value">9 <small>项</small></div></div>
+            <div class="metric"><div class="metric-label">今日节省</div><div class="metric-value">18 <small>次操作</small></div></div>
+          </section>
+          <header class="rulehead"><h2>收纳规则</h2><span>4 条正在运行</span><div class="filter"><span>按最近执行</span><button aria-label="筛选规则"><svg class="icon"><use href="#i-filter"/></svg></button></div></header>
+          <section class="ruleboard">
+            <div class="rulegrid columns"><span>规则 / 收纳窗口</span><span>存储位置</span><span>最近收纳</span><span>状态</span></div>
+            <div class="rulegrid rulerow selected"><div class="ruleinfo"><span class="ruleglyph"><svg class="icon"><use href="#i-file"/></svg></span><span class="ruletext"><strong>工作文档</strong><small>文档 · 表格 · PDF</small></span></div><div class="path">D:\桌面归档\工作文档</div><div class="count">今天 09:42 · 6 项</div><div class="state">运行中</div></div>
+            <div class="rulegrid rulerow"><div class="ruleinfo"><span class="ruleglyph"><svg class="icon"><use href="#i-image"/></svg></span><span class="ruletext"><strong>图片素材</strong><small>图片 · 截图 · 设计稿</small></span></div><div class="path">D:\桌面归档\图片素材</div><div class="count">昨天 18:17 · 18 项</div><div class="state">运行中</div></div>
+            <div class="rulegrid rulerow"><div class="ruleinfo"><span class="ruleglyph"><svg class="icon"><use href="#i-folder"/></svg></span><span class="ruletext"><strong>临时下载</strong><small>压缩包 · 安装文件</small></span></div><div class="path">D:\桌面归档\临时下载</div><div class="count">8 月 22 日 · 3 项</div><div class="state">运行中</div></div>
+            <div class="rulegrid rulerow"><div class="ruleinfo"><span class="ruleglyph"><svg class="icon"><use href="#i-star"/></svg></span><span class="ruletext"><strong>稍后处理</strong><small>手动拖入</small></span></div><div class="path">D:\桌面归档\稍后处理</div><div class="count">尚未执行</div><div class="state paused">已暂停</div></div>
+          </section>
+          <footer class="footnote"><span>拖动规则可调整匹配顺序</span><code>AUTO ORGANIZE · ON</code></footer>
+        </section>
+      </div>
+    </section>
+    <section class="view" id="deskview">
+      <div class="desktop">
+        <div class="desktoplabel"><strong>安静地收纳。</strong>Desktop collection windows</div>
+        <section class="collect main">
+          <header class="ctitle"><h3>工作文档</h3><span>8 项</span><div class="cactions"><button aria-label="更多操作"><svg class="icon"><use href="#i-more"/></svg></button><button aria-label="关闭"><svg class="icon"><use href="#i-close"/></svg></button></div></header>
+          <div class="files">
+            <div class="file"><div class="fileicon"><svg viewBox="0 0 48 48"><path fill="#2474c5" d="M9 3h22l8 8v34H9z"/><path fill="#62a6e3" d="M31 3v9h8z"/><path fill="#fff" d="M15 20h18v3H15zm0 7h18v3H15zm0 7h12v3H15z"/></svg></div><span>项目计划.docx</span><small>2.4 MB</small></div>
+            <div class="file"><div class="fileicon"><svg viewBox="0 0 48 48"><path fill="#20894d" d="M9 3h22l8 8v34H9z"/><path fill="#63b781" d="M31 3v9h8z"/><path fill="#fff" d="M15 19h18v16H15z"/><path stroke="#20894d" d="M15 24h18M15 29h18M21 19v16M27 19v16"/></svg></div><span>周报.xlsx</span><small>984 KB</small></div>
+            <div class="file"><div class="fileicon"><svg viewBox="0 0 48 48"><path fill="#d94b43" d="M9 3h22l8 8v34H9z"/><path fill="#ef8b82" d="M31 3v9h8z"/><text x="14" y="32" fill="white" font-size="10" font-family="Arial" font-weight="700">PDF</text></svg></div><span>需求说明.pdf</span><small>1.7 MB</small></div>
+            <div class="file"><div class="fileicon"><svg viewBox="0 0 48 48"><path fill="#e9b94e" d="M3 12h19l4 5h19v26H3z"/><path fill="#f2d071" d="M3 8h17l4 5H3z"/></svg></div><span>客户资料</span><small>文件夹</small></div>
+            <div class="file"><div class="fileicon"><svg viewBox="0 0 48 48"><path fill="#2474c5" d="M9 3h22l8 8v34H9z"/><path fill="#62a6e3" d="M31 3v9h8z"/><path fill="#fff" d="M15 20h18v3H15zm0 7h18v3H15zm0 7h12v3H15z"/></svg></div><span>会议纪要.docx</span><small>86 KB</small></div>
+          </div>
+        </section>
+        <section class="collect small">
+          <header class="ctitle"><h3>图片素材</h3><span>12 项</span><div class="cactions"><button aria-label="更多操作"><svg class="icon"><use href="#i-more"/></svg></button><button aria-label="关闭"><svg class="icon"><use href="#i-close"/></svg></button></div></header>
+          <div class="files compact">
+            <div class="file"><div class="fileicon"><svg viewBox="0 0 48 48"><rect x="3" y="5" width="42" height="38" rx="4" fill="#677e74"/><circle cx="15" cy="16" r="5" fill="#d9c58b"/><path d="m6 37 12-12 8 8 6-6 10 10" fill="#b9d0c4"/></svg></div><span>首页方案.png</span></div>
+            <div class="file"><div class="fileicon"><svg viewBox="0 0 48 48"><rect x="3" y="5" width="42" height="38" rx="4" fill="#7d6f63"/><circle cx="15" cy="16" r="5" fill="#ead9b3"/><path d="m6 37 12-12 8 8 6-6 10 10" fill="#c7aa94"/></svg></div><span>产品图.jpg</span></div>
+            <div class="file"><div class="fileicon"><svg viewBox="0 0 48 48"><rect x="3" y="5" width="42" height="38" rx="4" fill="#5f6b7b"/><circle cx="15" cy="16" r="5" fill="#b8d1e6"/><path d="m6 37 12-12 8 8 6-6 10 10" fill="#9baac0"/></svg></div><span>截图 0824.png</span></div>
+          </div>
+        </section>
+        <section class="collect third"><header class="ctitle"><h3>稍后处理</h3><span>空</span><div class="cactions"><button aria-label="关闭"><svg class="icon"><use href="#i-close"/></svg></button></div></header><div class="dropcue"><span class="ring"><svg class="icon"><use href="#i-plus"/></svg></span>拖入文件，保留原始图标与格式</div></section>
+        <div class="original">显示 Windows 原始文件图标</div>
+      </div>
+    </section>
+    <section class="view" id="notesview">
+      <div class="notes"><div class="notewrap"><div class="eyebrow">Concept C · Quiet precision</div><h1>静奢，不需要证明自己。</h1><p>这一版把“简约、高级感”当作结构约束，而不是表面风格。去掉重复卡片、彩色状态块和装饰渐变，用大留白、精确对齐、发丝边框与低饱和香槟金建立秩序。收纳窗口保持半透明，但降低反光和色彩，让 Windows 原始文件图标成为主体。</p><div class="principles"><article class="principle"><b>01 · 一条归档脊线</b><p>香槟金只用于路径与状态的连续提示。它来自档案夹的金属脊，不承担大面积装饰。</p></article><article class="principle"><b>02 · 信息合并</b><p>规则就是收纳窗口。名称、目标目录、最近执行与状态在一行完成，减少视线跳转。</p></article><article class="principle"><b>03 · 克制的玻璃</b><p>窗体使用低反差深色亚克力、1px 高光边缘和宽柔阴影，透明但不影响文件辨识。</p></article></div><div class="swatches"><span class="swatch"><i style="background:#181b1a"></i><small>OBSIDIAN</small></span><span class="swatch"><i style="background:#f2f4f1"></i><small>PORCELAIN</small></span><span class="swatch"><i style="background:#aa8959"></i><small>CHAMPAGNE</small></span><span class="swatch"><i style="background:#3f6154"></i><small>SAGE</small></span><span class="swatch"><i style="background:#dfe3df"></i><small>TITANIUM</small></span></div></div></div>
+    </section>
+  </main>
+</div>
+<script>
+  const tabs=[...document.querySelectorAll('.viewtab')];
+  tabs.forEach(tab=>tab.addEventListener('click',()=>{tabs.forEach(x=>x.classList.remove('active'));document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));tab.classList.add('active');document.getElementById(tab.dataset.view).classList.add('active')}));
+</script>
+</body></html>

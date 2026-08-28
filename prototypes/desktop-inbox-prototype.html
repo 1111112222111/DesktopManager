@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>桌面管理 · 收件箱原型</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18201d;
+      --muted: #68716d;
+      --line: #dce2df;
+      --paper: #f4f6f4;
+      --white: #fff;
+      --green: #1d7050;
+      --green-soft: #e5f2eb;
+      --amber: #a76106;
+      --amber-soft: #fff0d6;
+      --red: #a03b32;
+      --shadow: 0 14px 40px rgba(28, 48, 39, .12);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font: 14px/1.45 "Segoe UI", "Microsoft YaHei", sans-serif; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .prototype-banner { height: 30px; display: grid; place-items: center; color: #694b00; background: #fff0be; border-bottom: 1px solid #eed378; font-size: 12px; letter-spacing: .04em; }
+    .app { min-height: calc(100vh - 30px); display: grid; grid-template-columns: 220px 1fr; }
+    .sidebar { padding: 24px 18px; background: #173b30; color: #eaf5ef; }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 34px; font-size: 18px; font-weight: 700; }
+    .brand-mark { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 10px; background: #d8f2e5; color: #14563d; }
+    .nav { display: grid; gap: 7px; }
+    .nav button { width: 100%; padding: 10px 12px; border: 0; border-radius: 9px; color: #d1e1da; background: transparent; text-align: left; }
+    .nav button.active { color: white; background: rgba(255,255,255,.12); }
+    .nav-count { float: right; padding: 1px 7px; border-radius: 20px; color: #173b30; background: #d8f2e5; font-size: 12px; }
+    .safe-note { margin-top: 28px; padding: 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 10px; color: #bdd2c9; font-size: 12px; }
+    .main { min-width: 0; padding: 28px 32px 100px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 5px; font-size: 28px; }
+    .subtitle { margin: 0; color: var(--muted); }
+    .search { width: 280px; padding: 10px 13px; border: 1px solid var(--line); border-radius: 10px; background: white; }
+    .primary { padding: 10px 16px; border: 0; border-radius: 9px; color: white; background: var(--green); font-weight: 650; }
+    .secondary { padding: 9px 14px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink); background: white; }
+    .danger-soft { color: var(--red); background: #fff2f0; border-color: #f0cbc5; }
+    .card { background: white; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 2px 10px rgba(26, 46, 38, .035); }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+    .stat { padding: 15px 17px; }
+    .stat b { display: block; font-size: 22px; }
+    .stat span { color: var(--muted); font-size: 12px; }
+    .tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 999px; color: #3d4a45; background: #edf1ef; font-size: 12px; white-space: nowrap; }
+    .tag.green { color: #155d40; background: var(--green-soft); }
+    .tag.amber { color: var(--amber); background: var(--amber-soft); }
+    .tag.red { color: var(--red); background: #ffe9e5; }
+    .file-icon { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px; background: #edf1ef; font-size: 17px; }
+    .file-name { font-weight: 650; }
+    .file-meta { color: var(--muted); font-size: 12px; }
+    .switcher { position: fixed; z-index: 50; left: 50%; bottom: 20px; display: flex; align-items: center; gap: 12px; transform: translateX(-50%); padding: 8px; border-radius: 999px; color: white; background: #101916; box-shadow: var(--shadow); }
+    .switcher button { width: 34px; height: 34px; border: 0; border-radius: 50%; color: white; background: rgba(255,255,255,.12); font-size: 18px; }
+    .switcher-label { min-width: 190px; text-align: center; font-size: 13px; }
+    .toast { position: fixed; z-index: 60; top: 48px; left: 50%; padding: 11px 16px; transform: translate(-50%, -20px); border-radius: 10px; color: white; background: #17251f; box-shadow: var(--shadow); opacity: 0; pointer-events: none; transition: .2s ease; }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+    /* A — 审核工作台 */
+    .a-layout { display: grid; grid-template-columns: minmax(600px, 1fr) 310px; gap: 18px; }
+    .table-card { overflow: hidden; }
+    .table-tools { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+    .filters { display: flex; gap: 6px; }
+    .filter { padding: 6px 9px; border: 1px solid transparent; border-radius: 7px; color: var(--muted); background: transparent; }
+    .filter.active { color: var(--green); background: var(--green-soft); }
+    .file-row { display: grid; grid-template-columns: 28px minmax(180px,1.4fr) minmax(150px,1fr) 120px 90px; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid #edf0ee; }
+    .file-row:last-child { border-bottom: 0; }
+    .file-cell { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .file-cell > div:last-child { min-width: 0; }
+    .file-name, .file-meta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .plan { padding: 18px; align-self: start; position: sticky; top: 24px; }
+    .plan h2 { font-size: 18px; }
+    .plan-line { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #edf0ee; }
+    .risk-box { margin: 14px 0; padding: 11px; border-radius: 9px; color: var(--amber); background: var(--amber-soft); font-size: 12px; }
+    .plan-actions { display: grid; gap: 8px; }
+
+    /* B — 分类看板 */
+    .board-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 16px; }
+    .board { display: grid; grid-template-columns: repeat(4, minmax(210px, 1fr)); gap: 13px; overflow-x: auto; }
+    .lane { min-height: 500px; padding: 12px; border-radius: 14px; background: #e9eeeb; }
+    .lane-head { display: flex; justify-content: space-between; align-items: center; padding: 4px 3px 12px; font-weight: 700; }
+    .lane-count { min-width: 24px; padding: 2px 7px; border-radius: 20px; background: rgba(255,255,255,.75); text-align: center; font-size: 12px; }
+    .ticket { margin-bottom: 9px; padding: 13px; border: 1px solid #d8dfdb; border-radius: 11px; background: white; box-shadow: 0 3px 8px rgba(32,50,42,.05); }
+    .ticket-top { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+    .ticket-path { margin-top: 8px; color: var(--muted); font-size: 11px; }
+    .board-footer { position: sticky; bottom: 80px; display: flex; align-items: center; justify-content: space-between; max-width: 720px; margin: 18px auto 0; padding: 12px 16px; border-radius: 13px; background: white; box-shadow: var(--shadow); }
+
+    /* C — 安心向导 */
+    .wizard-wrap { max-width: 880px; margin: 0 auto; }
+    .progress { display: flex; align-items: center; gap: 10px; margin: 8px 0 24px; color: var(--muted); }
+    .progress-track { height: 7px; flex: 1; overflow: hidden; border-radius: 10px; background: #dfe5e2; }
+    .progress-fill { width: 42%; height: 100%; border-radius: inherit; background: var(--green); }
+    .wizard-card { padding: 28px; }
+    .focus-file { display: flex; align-items: center; gap: 15px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+    .focus-file .file-icon { width: 52px; height: 52px; font-size: 24px; }
+    .decision { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; margin: 22px 0; }
+    .decision button { padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: white; text-align: left; }
+    .decision button.selected { border-color: var(--green); background: var(--green-soft); box-shadow: inset 0 0 0 1px var(--green); }
+    .decision b, .decision span { display: block; }
+    .decision span { margin-top: 4px; color: var(--muted); font-size: 12px; }
+    .destination { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 11px; background: #f1f4f2; }
+    .reason { margin: 16px 0; padding: 13px 15px; border-left: 3px solid var(--green); background: #f5faf7; color: #46534e; }
+    .wizard-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; }
+    .safety-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 14px; }
+    .safety-strip div { padding: 10px; border-radius: 9px; color: #4c5954; background: #eef2f0; font-size: 12px; text-align: center; }
+
+    @media (max-width: 1050px) {
+      .app { grid-template-columns: 76px 1fr; }
+      .brand span, .nav button > span:first-child, .safe-note { display: none; }
+      .sidebar { padding-inline: 12px; }
+      .nav button { text-align: center; }
+      .nav-count { float: none; margin-left: 4px; }
+      .a-layout { grid-template-columns: 1fr; }
+      .plan { position: static; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .main { padding: 20px 16px 100px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .search { width: 100%; }
+      .file-row { grid-template-columns: 26px 1fr; }
+      .file-row > :nth-child(n+3) { display: none; }
+      .decision, .safety-strip { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- PROTOTYPE ONLY: three disposable UI variants, selected with ?variant=A|B|C. -->
+  <div class="prototype-banner">低保真原型 · 模拟数据 · 不会移动真实文件</div>
+  <div id="root"></div>
+  <div class="switcher" aria-label="原型方案切换器">
+    <button id="prev" aria-label="上一个方案">←</button>
+    <div class="switcher-label" id="variantLabel"></div>
+    <button id="next" aria-label="下一个方案">→</button>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const variants = [
+      { key: 'A', name: '审核工作台' },
+      { key: 'B', name: '分类看板' },
+      { key: 'C', name: '安心向导' }
+    ];
+
+    const files = [
+      { icon: '📊', name: 'Q3预算草稿.xlsx', meta: 'Excel · 2.4 MB · 10分钟前', action: '归档到 工作文档/财务', rule: '名称含“预算”', risk: false },
+      { icon: '🖼️', name: '屏幕截图 2026-08-21.png', meta: 'PNG · 1.8 MB · 24分钟前', action: '归档到 图片/截图', rule: '截图规则', risk: false },
+      { icon: '📦', name: 'design-assets.zip', meta: 'ZIP · 84 MB · 昨天', action: '归档到 压缩包', rule: '扩展名 .zip', risk: false },
+      { icon: '⚙️', name: 'tool-setup.exe', meta: '应用程序 · 126 MB · 3天前', action: '需要确认', rule: '安装包安全规则', risk: true },
+      { icon: '📁', name: '新建文件夹', meta: '文件夹 · 7个项目 · 6天前', action: '保留在桌面', rule: '未命中规则', risk: false },
+      { icon: '🔗', name: '项目后台.lnk', meta: '快捷方式 · 2 KB · 9天前', action: '分组到 常用入口', rule: '快捷方式规则', risk: false }
+    ];
+
+    let selected = new Set([0, 1, 2, 3, 5]);
+    let wizardChoice = 'archive';
+
+    function shell(content) {
+      return `
+        <div class="app">
+          <aside class="sidebar">
+            <div class="brand"><div class="brand-mark">▦</div><span>桌面管理</span></div>
+            <nav class="nav">
+              <button class="active"><span>收件箱</span><span class="nav-count">6</span></button>
+              <button><span>收藏夹</span></button>
+              <button><span>规则</span></button>
+              <button><span>历史</span></button>
+              <button><span>设置</span></button>
+            </nav>
+            <div class="safe-note">所有真实变更在执行前都会再次确认，并可从历史中撤销。</div>
+          </aside>
+          <main class="main">${content}</main>
+        </div>`;
+    }
+
+    function header(title, subtitle, search = true) {
+      return `<div class="topbar"><div><h1>${title}</h1><p class="subtitle">${subtitle}</p></div>${search ? '<input class="search" placeholder="搜索桌面项目…" aria-label="搜索桌面项目">' : ''}</div>`;
+    }
+
+    function renderA() {
+      const selectedCount = selected.size;
+      const rows = files.map((file, index) => `
+        <div class="file-row">
+          <input class="row-check" type="checkbox" data-index="${index}" ${selected.has(index) ? 'checked' : ''} aria-label="选择 ${file.name}">
+          <div class="file-cell"><div class="file-icon">${file.icon}</div><div><div class="file-name">${file.name}</div><div class="file-meta">${file.meta}</div></div></div>
+          <div><div>${file.action}</div><span class="tag ${file.risk ? 'red' : 'green'}">${file.risk ? '需确认' : '已匹配'}</span></div>
+          <span class="file-meta">${file.rule}</span>
+          <button class="secondary">调整</button>
+        </div>`).join('');
+
+      return shell(`
+        ${header('桌面收件箱', '集中审核建议，确认后才执行真实文件变更')}
+        <div class="stats">
+          <div class="stat card"><b>6</b><span>待整理项目</span></div>
+          <div class="stat card"><b>${selectedCount}</b><span>已加入本次计划</span></div>
+          <div class="stat card"><b>214 MB</b><span>可释放桌面空间</span></div>
+          <div class="stat card"><b style="color:var(--amber)">1</b><span>需要你确认</span></div>
+        </div>
+        <div class="a-layout">
+          <section class="card table-card">
+            <div class="table-tools"><div class="filters"><button class="filter active">全部</button><button class="filter">最近新增</button><button class="filter">需确认</button></div><span class="file-meta">最后扫描：刚刚</span></div>
+            ${rows}
+          </section>
+          <aside class="card plan">
+            <h2>本次整理计划</h2>
+            <p class="subtitle">仅执行已勾选的项目</p>
+            <div class="plan-line"><span>归档</span><b>${[0,1,2,3].filter(i => selected.has(i)).length} 项</b></div>
+            <div class="plan-line"><span>逻辑分组</span><b>${selected.has(5) ? 1 : 0} 项</b></div>
+            <div class="plan-line"><span>保留</span><b>${selected.has(4) ? 1 : 0} 项</b></div>
+            <div class="risk-box">⚠ tool-setup.exe 是可执行文件，需要单独确认目标位置。</div>
+            <div class="plan-actions"><button class="primary execute">预览并执行 ${selectedCount} 项</button><button class="secondary">保存为稍后处理</button></div>
+          </aside>
+        </div>`);
+    }
+
+    function ticket(index) {
+      const f = files[index];
+      return `<article class="ticket"><div class="ticket-top"><div class="file-icon">${f.icon}</div><div><div class="file-name">${f.name}</div><div class="file-meta">${f.meta}</div></div></div><span class="tag ${f.risk ? 'red' : 'green'}">${f.rule}</span><div class="ticket-path">建议：${f.action}</div></article>`;
+    }
+
+    function renderB() {
+      return shell(`
+        ${header('按去处分好，再一次收走', '每一列代表一个收纳结果；此原型中的卡片不会移动真实文件')}
+        <div class="board-head"><div><span class="tag green">自动建议已完成</span> <span class="tag">6 个项目</span></div><button class="secondary">＋ 新建分类</button></div>
+        <section class="board">
+          <div class="lane"><div class="lane-head"><span>工作文档</span><span class="lane-count">2</span></div>${ticket(0)}${ticket(5)}</div>
+          <div class="lane"><div class="lane-head"><span>图片与素材</span><span class="lane-count">1</span></div>${ticket(1)}</div>
+          <div class="lane"><div class="lane-head"><span>安装包与压缩包</span><span class="lane-count">2</span></div>${ticket(2)}${ticket(3)}</div>
+          <div class="lane"><div class="lane-head"><span>待决定</span><span class="lane-count">1</span></div>${ticket(4)}<button class="secondary" style="width:100%">稍后提醒</button></div>
+        </section>
+        <div class="board-footer"><div><b>5 项准备归档</b><div class="file-meta">1 项待决定 · 1 项安全提醒</div></div><button class="primary execute">检查并整理</button></div>`);
+    }
+
+    function renderC() {
+      const choice = (key) => wizardChoice === key ? 'selected' : '';
+      return shell(`
+        ${header('先处理需要确认的项目', '普通项目已经准备好，只剩 1 个安全决策', false)}
+        <div class="wizard-wrap">
+          <div class="progress"><span>检查 1 / 1</span><div class="progress-track"><div class="progress-fill"></div></div><span>之后预览全部</span></div>
+          <section class="card wizard-card">
+            <div class="focus-file"><div class="file-icon">⚙️</div><div><h2 style="margin-bottom:4px">tool-setup.exe</h2><div class="file-meta">应用程序 · 126 MB · 3天前 · 当前位于桌面</div></div><span class="tag red" style="margin-left:auto">可执行文件</span></div>
+            <div class="reason"><b>为什么需要确认？</b><br>安装包可能仍会使用。建议归档而非删除，并保留原文件名和完整操作记录。</div>
+            <h3>你想怎么处理？</h3>
+            <div class="decision">
+              <button class="choice ${choice('archive')}" data-choice="archive"><b>归档</b><span>移出桌面，仍可随时恢复</span></button>
+              <button class="choice ${choice('keep')}" data-choice="keep"><b>保留</b><span>继续放在桌面，暂不提醒</span></button>
+              <button class="choice ${choice('ignore')}" data-choice="ignore"><b>忽略</b><span>以后不再参与扫描和建议</span></button>
+            </div>
+            <div class="destination"><div><div class="file-meta">建议目标位置</div><b>桌面归档 / 安装包 / 2026</b></div><button class="secondary">更改</button></div>
+            <div class="wizard-actions"><button class="secondary">跳过，稍后再说</button><button class="primary execute">确认并查看完整计划 →</button></div>
+          </section>
+          <div class="safety-strip"><div>✓ 不永久删除</div><div>✓ 执行前再次预览</div><div>✓ 整批操作可撤销</div></div>
+        </div>`);
+    }
+
+    function currentVariant() {
+      const key = new URLSearchParams(location.search).get('variant')?.toUpperCase();
+      return variants.find(v => v.key === key) || variants[0];
+    }
+
+    function render() {
+      const current = currentVariant();
+      document.getElementById('root').innerHTML = current.key === 'A' ? renderA() : current.key === 'B' ? renderB() : renderC();
+      document.getElementById('variantLabel').textContent = `${current.key} — ${current.name}`;
+      bindInteractions();
+    }
+
+    function cycle(delta) {
+      const current = currentVariant();
+      const index = variants.findIndex(v => v.key === current.key);
+      const next = variants[(index + delta + variants.length) % variants.length];
+      const url = new URL(location.href);
+      url.searchParams.set('variant', next.key);
+      history.replaceState(null, '', url);
+      render();
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    function bindInteractions() {
+      document.querySelectorAll('.row-check').forEach(input => input.addEventListener('change', event => {
+        const index = Number(event.target.dataset.index);
+        event.target.checked ? selected.add(index) : selected.delete(index);
+        render();
+      }));
+      document.querySelectorAll('.choice').forEach(button => button.addEventListener('click', () => {
+        wizardChoice = button.dataset.choice;
+        render();
+      }));
+      document.querySelectorAll('.execute').forEach(button => button.addEventListener('click', () => {
+        showToast('原型演示：已生成预览，不会移动真实文件');
+      }));
+    }
+
+    document.getElementById('prev').addEventListener('click', () => cycle(-1));
+    document.getElementById('next').addEventListener('click', () => cycle(1));
+    window.addEventListener('popstate', render);
+    window.addEventListener('keydown', event => {
+      const target = event.target;
+      if (target.matches('input, textarea, [contenteditable="true"]')) return;
+      if (event.key === 'ArrowLeft') cycle(-1);
+      if (event.key === 'ArrowRight') cycle(1);
+    });
+    render();
+  </script>
+</body>
+</html>

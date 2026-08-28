@@ -1,0 +1,154 @@
+<local:AdaptiveDesktopWindow x:Class="DesktopManager.App.TodoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:DesktopManager.App"
+        Title="待办事项" Width="390" Height="430" MinWidth="330" MinHeight="280"
+        WindowStyle="None" ResizeMode="CanResize" ShowInTaskbar="False"
+        Background="Transparent" AllowsTransparency="True"
+        FontFamily="{StaticResource BodyFont}" Foreground="{StaticResource GlassTextBrush}"
+        PreviewKeyDown="Window_PreviewKeyDown">
+    <Window.Resources>
+        <Style TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="8,7" />
+            <Setter Property="Margin" Value="0,2" />
+            <Setter Property="Foreground" Value="{StaticResource GlassTextBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource QuietFocusVisual}" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{StaticResource GlassControlHoverBrush}" /></Trigger>
+                <Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="{StaticResource GlassControlPressedBrush}" /></Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Border CornerRadius="12" Background="{StaticResource GlassDarkBrush}" BorderBrush="{StaticResource GlassLineBrush}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="46" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border x:Name="TitleBar" BorderBrush="{StaticResource GlassLineBrush}" BorderThickness="0,0,0,1"
+                    Background="Transparent" Cursor="SizeAll" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid Margin="16,0,8,0">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock FontFamily="{StaticResource DisplayFont}" FontSize="14" FontWeight="SemiBold" Text="待办事项" />
+                        <TextBlock x:Name="CountText" Margin="10,2,0,0" Foreground="{StaticResource GlassMutedBrush}" FontFamily="{StaticResource DataFont}" FontSize="9" />
+                    </StackPanel>
+                    <Button x:Name="ClearCompletedButton" Grid.Column="1" Style="{StaticResource GlassWidgetIconButton}" Content="&#xE74D;"
+                            ToolTip="清理当前日期的已完成事项" AutomationProperties.Name="清理当前日期的已完成事项" Click="ClearCompleted_Click" />
+                    <Button Grid.Column="2" Style="{StaticResource GlassWidgetIconButton}" Content="&#xE711;"
+                            ToolTip="关闭待办事项" AutomationProperties.Name="关闭待办事项" Click="CloseWindow_Click" />
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1" Margin="10,10,10,0" Padding="3" Background="{StaticResource GlassControlBrush}" CornerRadius="10">
+                <ItemsControl x:Name="DateChoices" KeyboardNavigation.DirectionalNavigation="Contained">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="1" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <RadioButton GroupName="TodoQuickDueDate" Style="{StaticResource GlassWidgetDateChoice}"
+                                         IsChecked="{Binding IsSelected, Mode=OneWay}" Tag="{Binding}"
+                                         AutomationProperties.Name="{Binding AutomationName}" Click="DateChoice_Click">
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock HorizontalAlignment="Center" FontSize="10" FontWeight="SemiBold" Text="{Binding UpperText}" />
+                                    <TextBlock Margin="0,2,0,0" HorizontalAlignment="Center" FontFamily="{StaticResource DataFont}"
+                                               FontSize="8" Foreground="{StaticResource GlassMutedBrush}" Text="{Binding LowerText}" />
+                                    <Ellipse Width="4" Height="4" Margin="0,2,0,0" Fill="{StaticResource GlassDangerTextBrush}">
+                                        <Ellipse.Style>
+                                            <Style TargetType="Ellipse">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasItems}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Ellipse.Style>
+                                    </Ellipse>
+                                </StackPanel>
+                            </RadioButton>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+
+            <Grid Grid.Row="2" Margin="12,9,12,5">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <Grid>
+                    <TextBox x:Name="QuickAddText" Style="{StaticResource GlassWidgetTextBox}"
+                             AutomationProperties.Name="快速新增待办事项" TextChanged="QuickAddText_TextChanged" KeyDown="QuickAddText_KeyDown" />
+                    <TextBlock x:Name="QuickAddPlaceholder" Margin="12,0" VerticalAlignment="Center" IsHitTestVisible="False"
+                               Foreground="{StaticResource GlassMutedBrush}" Text="输入事项，按 Enter 添加" />
+                </Grid>
+                <Button Grid.Column="1" Width="34" Height="34" MinHeight="34" Margin="7,0,0,0" Padding="0"
+                        Style="{StaticResource GlassWidgetAccentButton}" FontFamily="Segoe Fluent Icons" Content="&#xE710;"
+                        ToolTip="新增待办事项" AutomationProperties.Name="新增待办事项" Click="Add_Click" />
+            </Grid>
+
+            <Grid x:Name="ContentPanel" Grid.Row="3" Margin="10,0,10,9" Background="Transparent" MouseLeftButtonDown="ContentPanel_MouseLeftButtonDown">
+                <TextBlock x:Name="EmptyText" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource GlassMutedBrush}"
+                           TextAlignment="Center" TextWrapping="Wrap" Text="暂无事项&#x0a;选择日期后在上方快速新增" />
+                <ListBox x:Name="TasksList" Background="Transparent" BorderThickness="0" SelectionMode="Single"
+                         AutomationProperties.Name="待办事项列表" MouseDoubleClick="TasksList_MouseDoubleClick"
+                         PreviewMouseRightButtonDown="TasksList_PreviewMouseRightButtonDown"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+                         VirtualizingPanel.VirtualizationMode="Recycling">
+                    <ListBox.GroupStyle>
+                        <GroupStyle>
+                            <GroupStyle.HeaderTemplate>
+                                <DataTemplate>
+                                    <Border Margin="8,9,8,3" Padding="0,0,0,6" BorderBrush="{StaticResource GlassLineBrush}" BorderThickness="0,0,0,1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                            <TextBlock FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource GlassTextBrush}" Text="{Binding Name}" />
+                                            <TextBlock Grid.Column="1" Foreground="{StaticResource GlassMutedBrush}" FontFamily="{StaticResource DataFont}"
+                                                       FontSize="9" Text="{Binding ItemCount, StringFormat={}{0} 项}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </GroupStyle.HeaderTemplate>
+                        </GroupStyle>
+                    </ListBox.GroupStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ToolTip="{Binding FullDescription}">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="32"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <ToggleButton VerticalAlignment="Center" Style="{StaticResource GlassWidgetCheckToggle}"
+                                              IsChecked="{Binding IsCompleted, Mode=OneWay}" Tag="{Binding}"
+                                              AutomationProperties.Name="{Binding ToggleAutomationName}" Click="Completion_Click" />
+                                <Grid Grid.Column="1" Margin="7,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{StaticResource GlassTextBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsCompleted}" Value="True">
+                                                        <Setter Property="TextDecorations" Value="Strikethrough" />
+                                                        <Setter Property="Foreground" Value="{StaticResource GlassMutedBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="完成 / 恢复" Click="ToggleSelected_Click" />
+                            <MenuItem Header="编辑" Click="Edit_Click" />
+                            <Separator />
+                            <MenuItem Header="删除" Click="Delete_Click" />
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                </ListBox>
+            </Grid>
+        </Grid>
+    </Border>
+</local:AdaptiveDesktopWindow>
